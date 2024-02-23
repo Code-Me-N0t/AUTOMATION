@@ -1,0 +1,177 @@
+NAV:
+  BACCARAT: "div.v-tabs__div.baccarat"
+  THREE CARDS: "div.v-tabs__div.cards"
+  DRAGON TIGER: "div.v-tabs__div.cards"
+  NIUNIU: "div.v-tabs__div.cards"
+  SEDIE: "div.v-tabs__div.others"
+  ROULETTE: "div.v-tabs__div.others"
+  MULTI: "div.v-tabs__div:nth-child(2)"
+  FEATURED: "div.v-tabs__div.featured"
+
+LOBBY:
+  MAIN: "div#tables-panel"
+  MENU: "div#game-menu"
+  TABLE: "#tables-panel > div > .table-card"
+
+ROULETTE:
+  BET AREA: "div.bet-area.s"
+  TIMER: "span.timer"
+  CONFIRM: "div.Confirm>div"
+  RESULT BOARD: "div.result-board"
+  TOAST: "div#bet-msg-toast>span"
+
+INGAME:
+  MAIN: "div#game-content"
+  EXIT: "div#btn-exit"
+  CHIPS: "div.v-responsive.v-image.chip"
+  EDIT_CHIP: "div.chip-edit"
+  EDIT_BTN: "button.edit-btn"
+  CLEAR_CHIP: "i.v-icon--link"
+  ENTER_VALUE: "div.v-text-field__slot > input[type=tel]"
+  SAVE_BTN: "#chip-amounts > div > div.flex.xs12.sm8 > div > div:nth-child(3) > button > div"
+  CLOSE_BTN: "div.close-wrap"
+  VALIDATION: "div#bet-msg-toast > div"
+  CONFIRM: "div.Confirm"
+  TABLE_NAME: "span.point.pr-2"
+  TIMER: "span.timer"
+
+PLAYER: "div.bet-table.p"
+BANKER: "div.bet-table.b"
+
+DRAGON: "div.bet-table.d"
+TIGER: "div.bet-table.t"
+
+TDRAGON: "div.bet-table-dragon"
+PHOENIX: "div.bet-table-phoenix"
+
+ODD: "div.bet-table.od"
+EVEN: "div.bet-table.ev"
+BIG: "div.bet-table.bg"
+SMALL: "div.bet-table.sm"
+
+B1_EQUAL: "div.bet-table-e:nth-child(2)"
+B2_EQUAL: "div.bet-table-e:nth-child(5)"
+B3_EQUAL: "div.bet-table-e:nth-child(8)"
+
+P1_EQUAL: "div.bet-table-e:nth-child(11)"
+P2_EQUAL: "div.bet-table-e:nth-child(14)"
+P3_EQUAL: "div.bet-table-e:nth-child(17)"
+
+playerBalanceMain: "div.balance>span"
+playerBalance: "div.player-balance"
+
+BETTING AREA:
+  NIUNIU: "div.bet-table-all"
+  THREE CARDS: "div.bet-table-all"
+  BACCARAT: "div.bet-table"
+  DRAGON TIGER: "div.bet-table"
+
+totalBet: "span.font-weight-bold"
+
+# MULTI PLAY TAB LOCATORS BELOW
+
+MULTI:
+  MAIN: "div#multi-table"
+  MULTI TABLE: "div.table-card-bet"
+  TABLE SWITCH: "div.table-switch"
+  MINI TABLECARD: "div.bet-mini-table-card"
+  VALIDATION: "div.sidebar-msg"
+  SHUFFLING_TEXT: "div.shuffling-text"
+  CLOSE SIDETABLE: "div.close"
+  USER BALANCE: "div.user-data>span"
+  TOAST: "div#bet-msg-toast"
+  CHIP VALUE: "div.chip-value"
+
+MULTI TABLE:
+  TABLE TIME: "div.table-time span"
+  TABLE RESULT: "div.mini-game-result"
+  TABLE NAME: "span span:nth-child(1)"
+  TABLE NUMBER: "div.table-card-bet:nth-child("
+
+MULTI BUTTON:
+  CONFIRM BUTTON: "div.bet-btns.Confirm"
+
+MULTI BETTINGAREA:
+  SEDIE:
+    SMALL: "div.fast-bet-area.small"
+    BIG: "div.fast-bet-area.big"
+    ODD: "div.fast-bet-area.odd"
+    EVEN: "div.fast-bet-area.even"
+  BACCARAT:
+    PLAYER: "div.fast-bet-area.player"
+    BANKER: "div.fast-bet-area.banker"
+  DT:
+    DRAGON: "div.fast-bet-area.dragon"
+    TIGER: "div.fast-bet-area.tiger"
+  SICBO:
+    SMALL: "div.fast-bet-area.small"
+    BIG: "div.fast-bet-area.big"
+    ODD: "div.fast-bet-area.odd"
+    EVEN: "div.fast-bet-area.even"
+
+PAYOUT:
+  SEDIE:
+    SMALL: 0.96
+    BIG: 0.96
+    ODD: 0.96
+    EVEN: 0.96
+  BACCARAT:
+    PLAYER: 1
+    BANKER: 0.95
+  DT:
+    DRAGON: 1
+    TIGER: 1
+  SICBO:
+    SMALL: 1
+    BIG: 1
+    ODD: 1
+    EVEN: 1
+
+
+CELL:
+  BACCARAT: 4
+  DT: 10
+  SICBO: 16
+  SEDIE: 22
+
+BACCARAT:
+  - C2
+  # - M1 
+  # - M2 
+  # - M3
+  # - M5
+  # - M6
+  # - M7
+  # - RNG001
+  # - RNG002
+  # - RNG003
+  # - RNG005
+  # - RNG006
+  # - RNG007
+  # - RNG012
+  # - RNG013
+  # - RNG015
+  # - RNG016
+  # - RNG017
+  # - RNG018
+
+DT:
+  - P7
+  # - C9
+  # - C10
+  # - C11
+  # - RNG008
+  # - RNG009
+  # - RNG010
+  # - RNG011
+  # - RNG019
+  # - RNG020
+  # - RNG021
+  # - RNG022
+
+SEDIE:
+  - B01
+  # - B02
+
+SICBO:
+  - C12
