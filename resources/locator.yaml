@@ -90,6 +90,7 @@ MULTI TABLE:
 
 MULTI BUTTON:
   CONFIRM BUTTON: "div.bet-btns.Confirm"
+  SUPER SIX: "div.super6-switch"
 
 MULTI BETTINGAREA:
   SEDIE:
@@ -100,6 +101,7 @@ MULTI BETTINGAREA:
   BACCARAT:
     PLAYER: "div.fast-bet-area.player"
     BANKER: "div.fast-bet-area.banker"
+    # SUPER SIX: "div.fast-bet-area.super6"
   DT:
     DRAGON: "div.fast-bet-area.dragon"
     TIGER: "div.fast-bet-area.tiger"
@@ -118,6 +120,7 @@ PAYOUT:
   BACCARAT:
     PLAYER: 1
     BANKER: 0.95
+    # SUPER SIX: 12
   DT:
     DRAGON: 1
     TIGER: 1
@@ -126,7 +129,6 @@ PAYOUT:
     BIG: 1
     ODD: 1
     EVEN: 1
-
 
 CELL:
   BACCARAT: 4
@@ -157,17 +159,17 @@ BACCARAT:
 
 DT:
   - P7
-  # - C9
-  # - C10
-  # - C11
-  # - RNG008
-  # - RNG009
-  # - RNG010
-  # - RNG011
-  # - RNG019
-  # - RNG020
-  # - RNG021
-  # - RNG022
+  - C9
+  - C10
+  - C11
+  - RNG008
+  - RNG009
+  - RNG010
+  - RNG011
+  - RNG019
+  - RNG020
+  - RNG021
+  - RNG022
 
 SEDIE:
   - B01

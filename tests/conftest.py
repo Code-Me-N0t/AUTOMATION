@@ -6,7 +6,7 @@ def driver():
     url = get_token()
     option = Options()
     option.add_argument("--incognito")
-    option.add_argument("window-position=1410,0")
+    # option.add_argument("window-position=1430,0")
     option.add_argument("window-size=446,972")
     option.add_argument(f"--app={url}")
     option.add_experimental_option("mobileEmulation", emulation())

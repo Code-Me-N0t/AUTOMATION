@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from selenium.webdriver.common.by import By
 from google.oauth2 import service_account
 from selenium import webdriver
-from colorama import Fore
+from colorama import Fore, init
 from time import sleep
 # new imports below:
 from selenium.webdriver.common.keys import Keys
@@ -18,6 +18,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import date
 
+init(autoreset=True)
 
 def locator(*keys):
     with open("resources/locator.yaml", "r") as loc:
@@ -108,7 +109,7 @@ def update_spreadsheet(value, rng):
             valueInputOption="RAW",
             body=body
         ).execute()
-        print(f"{result.get('updatedCells')} cell updated on the sheet.")
+        # print(f"{result.get('updatedCells')} cell updated on the sheet.")
 
     except HttpError as err: print(err)
 
