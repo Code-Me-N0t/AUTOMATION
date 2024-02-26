@@ -62,7 +62,6 @@ def playMulti(driver, game, test, report):
                 betArea = random.choice(list(randomize))
                 if test == "BET LIMIT":
                     multiBetLimit(driver, game, assertBelowLimitStatus, assertOverLimitStatus, tableNum, intoText, betArea)
-
                 elif test == "PLACE BET":
                     multiPlaceSingle(driver, game, assertBetPlacedStatus, assertDeductedBalanceStatus, assertAddedBalanceStatus, tableNum, betArea)
                 elif test == "PLACE ALL":
