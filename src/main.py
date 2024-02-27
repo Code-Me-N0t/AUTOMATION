@@ -109,8 +109,8 @@ def playMulti(driver, game, test, report):
 
         waitClickable(driver, "NAV", "FEATURED")
         waitElement(driver, "LOBBY", "MAIN")
-    except Exception:
-        driver.save_screenshot(f"screenshots/{gameTable[selectedGame]}-{Exception}.png")
+    except:
+        driver.save_screenshot(f"screenshots/{gameTable[selectedGame]}_{Exception}_{date.today()}.png")
 
 def multiBetLimit(driver, game, assertBelowLimitStatus, assertOverLimitStatus, tableNum, intoText, betArea):
     printText('title', 'Minimum Bet Limit')
@@ -141,10 +141,10 @@ def multiBetLimit(driver, game, assertBelowLimitStatus, assertOverLimitStatus, t
     waitModClickable(driver, "MULTI BETTINGAREA", f"{game}", f"{betArea}", table=tableNum)
     findModElement(driver, "MULTI BUTTON", "CONFIRM BUTTON", click=True, table=tableNum)
 
-                                # assert validation displayed == 'Below Minimum Limit'
+    # assert validation displayed == 'Below Minimum Limit'
     assertBelowLimit(driver, tableNum, assertBelowLimitStatus)
 
-                                # //////////////////////////////////////////////////////////
+    # //////////////////////////////////////////////////////////
 
     printText('title', 'Maximum Bet Limit')
                                 

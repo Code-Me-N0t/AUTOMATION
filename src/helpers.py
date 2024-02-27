@@ -190,7 +190,7 @@ def assertWinAdded(driver, game, assertAddedBalanceStatus, tableNum, betArea, pl
                                         # print("Added Balance: ", addedBalance)
         try:
             assert round(addedBalance, 2) == round(validateAddedBalance, 2)
-            printTexts('body', 'Won Assertion', 'PASSED')
+            printTexts('body', 'Won Assertion: ', 'PASSED')
             assertAddedBalanceStatus.append("PASSED")
         except AssertionError:
             printTexts('body', 'Won Assertion: ', f'FAILED\n{round(addedBalance, 2)} != {round(validateAddedBalance, 2)}')
@@ -198,7 +198,7 @@ def assertWinAdded(driver, game, assertAddedBalanceStatus, tableNum, betArea, pl
     else:
         try:
             assert round(deductedBalance, 2) == round(newBalance, 2)
-            printText('body', 'Lose Assertion: ', 'PASSED')
+            printTexts('body', 'Lose Assertion: ', 'PASSED')
             assertAddedBalanceStatus.append("PASSED")
         except AssertionError:
             printTexts('body', 'Lose Assertion: ', f'FAILED\n{round(deductedBalance, 2)} != {round(newBalance, 2)}')
@@ -208,7 +208,7 @@ def assertDeductedBalance(assertDeductedBalanceStatus, playerBalance, oldBalance
     deductedBalance = oldBalance - 201
     try:
         assert round(deductedBalance, 2) == round(float(playerBalance.text.replace(',', '')), 2)
-        printText('body', 'Balance Deducted Assertion: ', 'PASSED')
+        printTexts('body', 'Balance Deducted Assertion: ', 'PASSED')
         assertDeductedBalanceStatus.append("PASSED")
     except AssertionError:
         print(f"Balance Deducted Assertion: {Fore.RED}FAILED{Fore.LIGHTBLACK_EX}\n{round(deductedBalance,2):.2f} != {playerBalance.text.replace(',','')}")
@@ -221,7 +221,7 @@ def assertBetPlaced(driver, assertBetPlacedStatus, tableNum):
     try: 
         assert assertBetPlaced
         assertBetPlacedStatus.append("PASSED")
-        printText('body', 'Bet Placed Assertion: ', 'PASSED')
+        printTexts('body', 'Bet Placed Assertion: ', 'PASSED')
     except AssertionError:
-        printText('body', 'Bet Placed Assertion: ', 'FAILED')
+        printTexts('body', 'Bet Placed Assertion: ', 'FAILED')
         assertBetPlacedStatus.append("FAILED")
