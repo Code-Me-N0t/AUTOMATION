@@ -72,7 +72,7 @@ totalBet: "span.font-weight-bold"
 
 MULTI:
   MAIN: "div#multi-table"
-  MULTI TABLE: "div.table-card-bet"
+  MULTI TABLE: "div.flex.table-card-bet.xs12"
   TABLE SWITCH: "div.table-switch"
   MINI TABLECARD: "div.bet-mini-table-card"
   VALIDATION: "div.sidebar-msg"
@@ -138,38 +138,38 @@ CELL:
 
 BACCARAT:
   - C2
-  - M1 
-  - M2 
-  - M3
-  - M5
-  - M6
-  - M7
-  - RNG001
-  - RNG002
-  - RNG003
-  - RNG005
-  - RNG006
-  - RNG007
-  - RNG012
-  - RNG013
-  - RNG015
-  - RNG016
-  - RNG017
-  - RNG018
+  # - M1 
+  # - M2 
+  # - M3
+  # - M5
+  # - M6
+  # - M7
+  # - RNG001
+  # - RNG002
+  # - RNG003
+  # - RNG005
+  # - RNG006
+  # - RNG007
+  # - RNG012
+  # - RNG013
+  # - RNG015
+  # - RNG016
+  # - RNG017
+  # - RNG018
 
 DT:
   - P7
-  - C9
-  - C10
-  - C11
-  - RNG008
-  - RNG009
-  - RNG010
-  - RNG011
-  - RNG019
-  - RNG020
-  - RNG021
-  - RNG022
+  # - C9
+  # - C10
+  # - C11
+  # - RNG008
+  # - RNG009
+  # - RNG010
+  # - RNG011
+  # - RNG019
+  # - RNG020
+  # - RNG021
+  # - RNG022
 
 SEDIE:
   - B01

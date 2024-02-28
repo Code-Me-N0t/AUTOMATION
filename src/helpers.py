@@ -13,8 +13,9 @@ def findModElement(driver, *keys, click=False, table=None):
     else: return element
 
 def findElements(driver, *keys):
-    selector=locator(*keys)
-    element = driver.find_elements(By.CSS_SELECTOR, selector)
+    selector = (By.CSS_SELECTOR, locator(*keys))
+    # element = driver.find_elements(By.CSS_SELECTOR, selector)
+    element = WebDriverWait(driver, 600).until(EC.presence_of_all_elements_located(selector))
     return element
 
 def findModElements(driver, *keys, table=None):

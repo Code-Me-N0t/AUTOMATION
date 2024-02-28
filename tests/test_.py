@@ -16,5 +16,3 @@ def test_RUN(driver):
     playMulti(driver, "DT", "PLACE BET", report=True)
 
     # playMulti(driver, "BACCARAT", "SUPER SIX", report=False)
-
-    # betOnRoulette(driver)

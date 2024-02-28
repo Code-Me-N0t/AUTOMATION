@@ -14,27 +14,23 @@ def playMulti(driver, game, test, report):
     assertBetPlacedStatus = [] 
     assertDeductedBalanceStatus = [] 
     assertAddedBalanceStatus = []
-
     try:
         for selectedGame in range(len(gameTable)):
             printText('title', f"Finding: {gameTable[selectedGame]}")
             game_found = False
-
             for i in range(len(elements)):
+                name = elements[i]
                 tableNum = locator("MULTI TABLE","TABLE NUMBER")+str(i+1)+")"
 
-                name = elements[i]
-                printText('passed', f'Table: {(i+1)}')
-
+                printText('passed', f'Table: {(i+1)}\n{name.text}')
                 if gameTable[selectedGame] not in name.text:
+                    
                     print("Table is not",gameTable[selectedGame],"\nSwitching Table...")
                     waitModClickable(driver, "MULTI", "TABLE SWITCH", table=tableNum)
                     select = findElements(driver, "MULTI", "MINI TABLECARD")
-
                     for x in range(len(select)):
                         selectText = select[x]
                         driver.execute_script("arguments[0].scrollIntoView();", selectText)
-
                         if gameTable[selectedGame] in selectText.text:
                             selectText.click()
                             game_found = True
@@ -42,13 +38,10 @@ def playMulti(driver, game, test, report):
                             break
                         else: continue
                     # finding in mini side tables
-
                     elements = findElements(driver, "MULTI", "MULTI TABLE")
                     name = elements[i]
-
                     if gameTable[selectedGame] not in name.text and game_found == False:
                         waitClickable(driver, "MULTI", "CLOSE SIDETABLE")
-
                     if game_found: break
                 else:
                     game_found = True
@@ -56,7 +49,7 @@ def playMulti(driver, game, test, report):
 
             if game_found: #PLACE BET
                 intoText = findModElement(driver, "MULTI TABLE", "TABLE NAME", table=tableNum)
-
+                print(intoText.text)
                 assertTableSwitch(gameTable, assertTableSwitchStatus, selectedGame, intoText)
                 randomize = locator("MULTI BETTINGAREA",f"{game}")
                 betArea = random.choice(list(randomize))
@@ -90,7 +83,6 @@ def playMulti(driver, game, test, report):
                         waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
 
                     waitModClickable(driver, "MULTI BUTTON", "SUPER SIX", table=tableNum)
-
                     printTexts('body', 'PLACE BET: ', 'SUPER SIX')
                     waitModClickable(driver, betArea, table=tableNum)
                     findModElement(driver, "MULTI BUTTON", "CONFIRM BUTTON", click=True, table=tableNum)
@@ -136,11 +128,9 @@ def multiBetLimit(driver, game, assertBelowLimitStatus, assertOverLimitStatus, t
         waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
         waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
 
-    printTexts('body', 'PLACE BET: ', betArea)
-                                            
+    printTexts('body', 'PLACE BET: ', betArea)        
     waitModClickable(driver, "MULTI BETTINGAREA", f"{game}", f"{betArea}", table=tableNum)
     findModElement(driver, "MULTI BUTTON", "CONFIRM BUTTON", click=True, table=tableNum)
-
     # assert validation displayed == 'Below Minimum Limit'
     assertBelowLimit(driver, tableNum, assertBelowLimitStatus)
 
