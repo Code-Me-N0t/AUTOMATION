@@ -14,7 +14,6 @@ def findModElement(driver, *keys, click=False, table=None):
 
 def findElements(driver, *keys):
     selector = (By.CSS_SELECTOR, locator(*keys))
-    # element = driver.find_elements(By.CSS_SELECTOR, selector)
     element = WebDriverWait(driver, 600).until(EC.presence_of_all_elements_located(selector))
     return element
 
@@ -23,17 +22,24 @@ def findModElements(driver, *keys, table=None):
     element = driver.find_elements(By.CSS_SELECTOR, selector)
     return element
 
-def waitElement(driver, *keys, time=60):
+def waitElement(driver, *keys, time=600):
     selector = (By.CSS_SELECTOR, locator(*keys))
     element = WebDriverWait(driver, time).until(EC.visibility_of_element_located(selector))
     return element
+
+def navigateMulti(driver):
+    waitElement(driver, "PRE LOADING")
+    waitElement(driver, "LOBBY", "MAIN")
+    waitElement(driver, "LOBBY", "MENU")
+    waitClickable(driver, "NAV", "MULTI")
+    waitElement(driver, "MULTI", "MAIN")
 
 def waitModElement(driver, *keys, table=None):
     selector = table + " " + locator(*keys)
     element = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.CSS_SELECTOR, selector)))
     return element
 
-def WaitShuffling(driver, *keys, table=None):
+def waitShuffling(driver, *keys, table=None):
     selector = table + " " + locator(*keys)
     try:
         element = WebDriverWait(driver, 1).until(EC.visibility_of_element_located((By.CSS_SELECTOR, selector)))
@@ -67,7 +73,7 @@ def waitClickable(driver, *keys):
     element.click()
 
 def waitModClickable(driver, *keys, table=None):
-    selector= table + " " + locator(*keys)
+    selector = table + " " + locator(*keys)
     element = WebDriverWait(driver, 100).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
     element.click()
 
@@ -112,7 +118,7 @@ def printTexts(value, caption, text):
     color = color_map.get(value)
     print(f"{caption}{color}{text}")
 
-def editChips(driver,value):
+def editChips(driver, value):
     findElement(driver, "INGAME", "EDIT_CHIP", click=True)
     findElement(driver, "INGAME", "EDIT_BTN", click=True)
     findElement(driver, "INGAME", "CLEAR_CHIP", click=True)
@@ -121,64 +127,37 @@ def editChips(driver,value):
     findElement(driver, "INGAME", "CLOSE_BTN", click=True)
 
 # SPREADSHEET REPORT STATUSES
-def reportSheet(game, report, gameTable, assertTableSwitchStatus, assertBelowLimitStatus, assertOverLimitStatus, assertBetPlacedStatus, assertDeductedBalanceStatus, assertAddedBalanceStatus, selectedGame):
+def reportSheet(*args):
     assert_statuses = [
-            ("Table Switch", assertTableSwitchStatus),
-            ("Below Limit", assertBelowLimitStatus),
-            ("Over Limit", assertOverLimitStatus),
-            ("Bet Placed", assertBetPlacedStatus),
-            ("Deducted Balance", assertDeductedBalanceStatus),
-            ("Added Balance", assertAddedBalanceStatus)
-        ]
-    if report:
-        status = "PASSED"
-        cell = locator("CELL", f"{game}")
-        for index, (assert_type, assert_list) in enumerate(assert_statuses):
-            if assert_list:
-                if "FAILED" in assert_list:
-                    status = "FAILED"
-                    # add table to remarks cell
-                    update_spreadsheet(gameTable[selectedGame], f"E{(cell + index)}")
-                else: update_spreadsheet("", f"E{(cell + index)}")
-                print(f"{assert_type}: ", assert_list)
-                update_spreadsheet(status, f"D{(cell + index)}")
-    else:
-        print("Report disabled")
+        ("Table Switch", args[0]),
+        ("Below Limit", args[1]),
+        ("Over Limit", args[2]),
+        ("Bet Placed", args[3]),
+        ("Deducted Balance", args[4]),
+        ("Added Balance", args[5]),
+        ("Bet Limit", args[6])
+    ]
+    for (assert_type, assert_list) in assert_statuses:
+        if assert_list:
+            print(f"{assert_type}: {assert_list}")
+    # if report:
+    #     status = "PASSED"
+    #     cell = locator("CELL", f"{game}")
+    #     for index, (assert_type, assert_list) in enumerate(assert_statuses):
+    #         if assert_list:
+    #             if "FAILED" in assert_list:
+    #                 status = "FAILED"
+    #             print(f"{assert_type}: ", assert_list)
+    #             update_spreadsheet(status, f"D{(cell + index)}")
+    #         # if failedTables:
+    #         #     update_spreadsheet(failedTables, f"D{(cell + index)}")
+    # else: 
+    #     print("Report disabled")
 
 
 # ASSERTIONS
-def assertBelowLimit(driver, tableNum, assertBelowLimitStatus):
-    validate = waitModElement(driver, "MULTI", "VALIDATION", table=tableNum)
-    try:
-        assert 'Below Minimum Limit' == validate.text
-        printTexts('body', 'Below Minimum Assertion: ', 'PASSED')
-        assertBelowLimitStatus.append("PASSED")
-    except AssertionError:
-        printTexts('body', 'Below Minimum Assertion: ', f" FAILED\nMessage: {validate.text}")
-        assertBelowLimitStatus.append("FAILED")
-
-def assertTableSwitch(gameTable, assertTableSwitchStatus, selectedGame, intoText):
-    try:
-        assert gameTable[selectedGame] == intoText.text
-        printTexts('body', 'Table Switch Assertion: ', 'PASSED')
-        assertTableSwitchStatus.append("PASSED")
-    except AssertionError:
-        printTexts('body', 'Table Switch Assertion: ', f"FAILED\nTable Switched: {intoText.text}")
-        print("Table Switch Assertion: "+Fore.LIGHTBLACK_EX+f"FAILED\nTable Switched: {intoText.text}")
-        assertTableSwitchStatus.append("FAILED")
-
-def assertAboveLimit(assertOverLimitStatus, assertOverLimit):
-    try: 
-        assert assertOverLimit
-        printTexts('body', 'Over Limit Assertion: ', 'PASSED')
-        assertOverLimitStatus.append("PASSED")
-    except AssertionError:
-        printTexts('body', 'Over Limit Assertion: ', 'FAILED')
-        assertOverLimitStatus.append("FAILED")
-
-def assertWinAdded(driver, game, assertAddedBalanceStatus, tableNum, betArea, playerBalance, oldBalance, deductedBalance):
+def assertWinAdded(driver, game, testStatus, tableNum, betArea, playerBalance, oldBalance, deductedBalance, failedTables, gameTable, selectedGame, betValue):
     newBalance = round(float(playerBalance.text.replace(',','')), 2)
-
     waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
     assertWin = waitElement(driver, "MULTI", "TOAST")
     payout = locator("PAYOUT", f"{game}", f"{betArea}")
@@ -186,43 +165,31 @@ def assertWinAdded(driver, game, assertAddedBalanceStatus, tableNum, betArea, pl
     printTexts('body', 'Payout: ', f'1:{payout}')
 
     if "Win" in assertWin.text:
-        addedBalance = (201 * payout) + newBalance
-        validateAddedBalance = oldBalance - (201-(201*payout))
-                                        # print("Added Balance: ", addedBalance)
-        try:
-            assert round(addedBalance, 2) == round(validateAddedBalance, 2)
-            printTexts('body', 'Won Assertion: ', 'PASSED')
-            assertAddedBalanceStatus.append("PASSED")
-        except AssertionError:
-            printTexts('body', 'Won Assertion: ', f'FAILED\n{round(addedBalance, 2)} != {round(validateAddedBalance, 2)}')
-            assertAddedBalanceStatus.append("FAILED")
-    else:
-        try:
-            assert round(deductedBalance, 2) == round(newBalance, 2)
-            printTexts('body', 'Lose Assertion: ', 'PASSED')
-            assertAddedBalanceStatus.append("PASSED")
-        except AssertionError:
-            printTexts('body', 'Lose Assertion: ', f'FAILED\n{round(deductedBalance, 2)} != {round(newBalance, 2)}')
-            assertAddedBalanceStatus.append("FAILED")
+        addedBalance = (betValue * payout) + newBalance
+        validateAddedBalance = oldBalance - (betValue-(betValue*payout))
+        assertion('Win Assertion', round(addedBalance, 2), round(validateAddedBalance, 2), operator.eq, testStatus, failedTables, gameTable, selectedGame)
+    else: assertion('Lose Assertion', round(newBalance, 2), round(deductedBalance, 2), operator.eq, testStatus, failedTables, gameTable, selectedGame)
 
-def assertDeductedBalance(assertDeductedBalanceStatus, playerBalance, oldBalance):
-    deductedBalance = oldBalance - 201
+def assertion(assertionTitle, actual, expected, operator, testStatus, failedTables, gameTable, selectedGame):
     try:
-        assert round(deductedBalance, 2) == round(float(playerBalance.text.replace(',', '')), 2)
-        printTexts('body', 'Balance Deducted Assertion: ', 'PASSED')
-        assertDeductedBalanceStatus.append("PASSED")
+        assert operator(actual, expected)
+        printTexts('body', assertionTitle, ': PASSED')
+        testStatus.append("PASSED")
     except AssertionError:
-        print(f"Balance Deducted Assertion: {Fore.RED}FAILED{Fore.LIGHTBLACK_EX}\n{round(deductedBalance,2):.2f} != {playerBalance.text.replace(',','')}")
-        printTexts('body', 'Balance Deducted Assertion: ', f'FAILED\n{round(deductedBalance,2):.2f} != {playerBalance.text.replace(',','')}')
-        assertDeductedBalanceStatus.append("FAILED")
-    return deductedBalance
+        testStatus.append("FAILED")
+        failedTables.append(gameTable[selectedGame])
+        printTexts('body', assertionTitle, ': FAILED')
 
-def assertBetPlaced(driver, assertBetPlacedStatus, tableNum):
-    assertBetPlaced = waitModText(driver, "MULTI", "VALIDATION", text='Bet Successful!', table=tableNum, time=10)
-    try: 
-        assert assertBetPlaced
-        assertBetPlacedStatus.append("PASSED")
-        printTexts('body', 'Bet Placed Assertion: ', 'PASSED')
-    except AssertionError:
-        printTexts('body', 'Bet Placed Assertion: ', 'FAILED')
-        assertBetPlacedStatus.append("FAILED")
+def sampleReport(*args):
+    samples = [
+        ("sample 1", args[0]),
+        ("sample 2", args[1]),
+        ("sample 3", args[2]),
+        ("sample 4", args[3]),
+        ("sample 5", args[4]),
+        ("sample 6", args[5]),
+        ("sample 7", args[6]),
+    ]
+    for (sample_list, sample_value) in samples:
+        if sample_value:
+            print(f"{sample_list}: {sample_value}")

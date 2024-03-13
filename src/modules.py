@@ -2,7 +2,7 @@ from selenium.common.exceptions import ElementClickInterceptedException, Timeout
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-import requests, random, pytest, yaml, re, os, os.path
+import requests, random, pytest, yaml, re, os, os.path, operator
 from googleapiclient.discovery import build
 from selenium.webdriver.common.by import By
 from google.oauth2 import service_account
@@ -16,9 +16,11 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from datetime import date
+from datetime import date, datetime
+from selenium.webdriver.common.action_chains import ActionChains
 
 init(autoreset=True)
+
 
 def locator(*keys):
     with open("resources/locator.yaml", "r") as loc:
@@ -34,6 +36,31 @@ def execJS(driver, function=None):
         script = getScript + f'return {function}'
         run = driver.execute_script(script)
         return run
+
+def displayToast(driver, message):
+    script = f"""
+    var toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.textContent = '{message}';
+    document.body.appendChild(toast);
+
+    toast.style.position = 'fixed';
+    toast.style.top = '20px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    toast.style.color = '#008000';
+    toast.style.padding = '10px';
+    toast.style.borderRadius = '5px';
+    toast.style.zIndex = '9999';
+    toast.style.fontWeight = 'bold';
+    toast.style.fontFamily = 'Arial, sans-serif';
+
+    setTimeout(function() {{
+        toast.remove();
+    }}, 3000);
+    """
+    driver.execute_script(script)
     
 def duplicate_sheet(service, spreadsheet_id, sheet_id, new_title):
     # Duplicate the sheet
@@ -101,7 +128,14 @@ def update_spreadsheet(value, rng):
                     print(f"The name of the duplicated sheet is: {new_sheet_title}")
                     break
         # Update value in the sheet (existing or duplicated)
-        values = [[value]]
+        if isinstance(value, list):
+            # If value is a list, join its elements into a single string
+            cell_value = ', '.join(str(v) for v in value)
+            # Update values with a list containing a single string
+            values = [[cell_value]]
+        else:
+            # If value is not a list, update values with a list containing a single value
+            values = [[value]]
         body = {'values': values}
         result = service.spreadsheets().values().update(
             spreadsheetId=SPREADSHEET_ID,

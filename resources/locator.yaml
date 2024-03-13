@@ -1,3 +1,5 @@
+PRE LOADING: "div#pre-loading"
+
 NAV:
   BACCARAT: "div.v-tabs__div.baccarat"
   THREE CARDS: "div.v-tabs__div.cards"
@@ -12,13 +14,7 @@ LOBBY:
   MAIN: "div#tables-panel"
   MENU: "div#game-menu"
   TABLE: "#tables-panel > div > .table-card"
-
-ROULETTE:
-  BET AREA: "div.bet-area.s"
-  TIMER: "span.timer"
-  CONFIRM: "div.Confirm>div"
-  RESULT BOARD: "div.result-board"
-  TOAST: "div#bet-msg-toast>span"
+  ENTER TABLE: "#tables-panel > div > .table-card:nth-child(1)"
 
 INGAME:
   MAIN: "div#game-content"
@@ -34,39 +30,19 @@ INGAME:
   CONFIRM: "div.Confirm"
   TABLE_NAME: "span.point.pr-2"
   TIMER: "span.timer"
+  RESULT: "div.result-board.result-cards"
+  SIDEBET: "div#btn-tips"
 
-PLAYER: "div.bet-table.p"
-BANKER: "div.bet-table.b"
-
-DRAGON: "div.bet-table.d"
-TIGER: "div.bet-table.t"
-
-TDRAGON: "div.bet-table-dragon"
-PHOENIX: "div.bet-table-phoenix"
-
-ODD: "div.bet-table.od"
-EVEN: "div.bet-table.ev"
-BIG: "div.bet-table.bg"
-SMALL: "div.bet-table.sm"
-
-B1_EQUAL: "div.bet-table-e:nth-child(2)"
-B2_EQUAL: "div.bet-table-e:nth-child(5)"
-B3_EQUAL: "div.bet-table-e:nth-child(8)"
-
-P1_EQUAL: "div.bet-table-e:nth-child(11)"
-P2_EQUAL: "div.bet-table-e:nth-child(14)"
-P3_EQUAL: "div.bet-table-e:nth-child(17)"
-
-playerBalanceMain: "div.balance>span"
-playerBalance: "div.player-balance"
+SIDEBET:
+  MAIN: "div#sidebar div.container"
+  LOBBY: "div.v-tabs__div:nth-child(3)"
+  TABLES: "div.mini-table-card"
 
 BETTING AREA:
   NIUNIU: "div.bet-table-all"
   THREE CARDS: "div.bet-table-all"
-  BACCARAT: "div.bet-table"
+  BACCARAT: "div.bet-table:nth-child(1)"
   DRAGON TIGER: "div.bet-table"
-
-totalBet: "span.font-weight-bold"
 
 # MULTI PLAY TAB LOCATORS BELOW
 
@@ -83,10 +59,10 @@ MULTI:
   CHIP VALUE: "div.chip-value"
 
 MULTI TABLE:
+  MAIN: "div.table-card-bet:nth-child("
   TABLE TIME: "div.table-time span"
   TABLE RESULT: "div.mini-game-result"
   TABLE NAME: "span span:nth-child(1)"
-  TABLE NUMBER: "div.table-card-bet:nth-child("
 
 MULTI BUTTON:
   CONFIRM BUTTON: "div.bet-btns.Confirm"
@@ -101,7 +77,7 @@ MULTI BETTINGAREA:
   BACCARAT:
     PLAYER: "div.fast-bet-area.player"
     BANKER: "div.fast-bet-area.banker"
-    # SUPER SIX: "div.fast-bet-area.super6"
+    SUPER SIX: "div.fast-bet-area.super6"
   DT:
     DRAGON: "div.fast-bet-area.dragon"
     TIGER: "div.fast-bet-area.tiger"
@@ -120,7 +96,7 @@ PAYOUT:
   BACCARAT:
     PLAYER: 1
     BANKER: 0.95
-    # SUPER SIX: 12
+    SUPER SIX: 12
   DT:
     DRAGON: 1
     TIGER: 1
@@ -130,14 +106,20 @@ PAYOUT:
     ODD: 1
     EVEN: 1
 
+BET LIMIT:
+  MAX: 2000
+  MIN: 10
+
+
+
 CELL:
   BACCARAT: 4
-  DT: 10
-  SICBO: 16
-  SEDIE: 22
+  DT: 12
+  SICBO: 18
+  SEDIE: 24
 
 BACCARAT:
-  - C2
+  # - C2
   # - M1 
   # - M2 
   # - M3
@@ -152,13 +134,13 @@ BACCARAT:
   # - RNG007
   # - RNG012
   # - RNG013
-  # - RNG015
+  - RNG015
   # - RNG016
   # - RNG017
   # - RNG018
 
 DT:
-  - P7
+  # - P7
   # - C9
   # - C10
   # - C11
@@ -169,7 +151,7 @@ DT:
   # - RNG019
   # - RNG020
   # - RNG021
-  # - RNG022
+  - RNG022
 
 SEDIE:
   - B01

@@ -18,8 +18,7 @@ function preventFullScreen() {
             document.mozCancelFullScreen();
         } else if (document.msExitFullscreen) {
             document.msExitFullscreen();
-        }
-    }
+        }}
 }
 function noFullScreen(){
     document.addEventListener('fullscreenchange', preventFullScreen);

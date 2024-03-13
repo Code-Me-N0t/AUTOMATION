@@ -1,30 +1,52 @@
 from src.modules import *
 from src.helpers import *
 
+test_case = {
+    "Table Switch Assertion": [], 
+    "Below Minimum Limit": [], 
+    "Over Maximum Limit": [], 
+    "Bet Placed Assertion": [], 
+    "Balance deduction after confirming bet": [], 
+    "Payout Assertion: Balance after win/lose bet": [],
+    "Bet Limit Assertion": []
+}
+
+data = {
+    "Username": "QAUSERTEST1128",
+    "Bet code": "8",
+    "Chip Value": "201"
+}
+
+sampleData = {
+    "sample1": [],
+    "sample2": [],
+    "sample3": [],
+    "sample4": [],
+    "sample5": [],
+    "sample6": [],
+    "sample7": [],
+}
 def playMulti(driver, game, test, report):
-    waitElement(driver, "LOBBY", "MAIN")
-    waitElement(driver, "LOBBY", "MENU")
-    waitClickable(driver, "NAV", "MULTI")
-    waitElement(driver, "MULTI", "MAIN")
+    navigateMulti(driver)
+    playerBalance = findElement(driver, "MULTI", "USER BALANCE")
+    oldBalance = round(float(playerBalance.text.replace(',','')), 2)
+
     elements = findElements(driver, "MULTI", "MULTI TABLE")
     gameTable = locator(game)
-    assertTableSwitchStatus = [] 
-    assertBelowLimitStatus = [] 
-    assertOverLimitStatus = [] 
-    assertBetPlacedStatus = [] 
-    assertDeductedBalanceStatus = [] 
-    assertAddedBalanceStatus = []
+    
+    failedTables = []
+
     try:
         for selectedGame in range(len(gameTable)):
             printText('title', f"Finding: {gameTable[selectedGame]}")
             game_found = False
             for i in range(len(elements)):
                 name = elements[i]
-                tableNum = locator("MULTI TABLE","TABLE NUMBER")+str(i+1)+")"
+                tableNum = locator("MULTI TABLE","MAIN")+str(i+1)+")"
 
-                printText('passed', f'Table: {(i+1)}\n{name.text}')
+                while name.text == '': continue
+
                 if gameTable[selectedGame] not in name.text:
-                    
                     print("Table is not",gameTable[selectedGame],"\nSwitching Table...")
                     waitModClickable(driver, "MULTI", "TABLE SWITCH", table=tableNum)
                     select = findElements(driver, "MULTI", "MINI TABLECARD")
@@ -34,7 +56,6 @@ def playMulti(driver, game, test, report):
                         if gameTable[selectedGame] in selectText.text:
                             selectText.click()
                             game_found = True
-                            print("Table Found")
                             break
                         else: continue
                     # finding in mini side tables
@@ -44,36 +65,56 @@ def playMulti(driver, game, test, report):
                         waitClickable(driver, "MULTI", "CLOSE SIDETABLE")
                     if game_found: break
                 else:
+                    print("Table Found")
                     game_found = True
                     break 
 
             if game_found: #PLACE BET
                 intoText = findModElement(driver, "MULTI TABLE", "TABLE NAME", table=tableNum)
-                print(intoText.text)
-                assertTableSwitch(gameTable, assertTableSwitchStatus, selectedGame, intoText)
-                randomize = locator("MULTI BETTINGAREA",f"{game}")
-                betArea = random.choice(list(randomize))
-                if test == "BET LIMIT":
-                    multiBetLimit(driver, game, assertBelowLimitStatus, assertOverLimitStatus, tableNum, intoText, betArea)
-                elif test == "PLACE BET":
-                    multiPlaceSingle(driver, game, assertBetPlacedStatus, assertDeductedBalanceStatus, assertAddedBalanceStatus, tableNum, betArea)
-                elif test == "PLACE ALL":
-                    print("Do Something")
-                elif test == "SUPER SIX" and game == 'BACCARAT':
-                    betArea = locator("MULTI BETTINGAREA","BACCARAT","SUPER SIX")
-                    printText('title','Place Bet On Super Six')
+                while intoText.text == '': continue
 
-                    chips = findElements(driver, "MULTI", "CHIP VALUE")
-                    try:
+                assertion('Table Switch Assertion', intoText, gameTable[selectedGame], operator.ne, test_case["Table Switch Assertion"], failedTables, gameTable, selectedGame)
+                
+                randomize = locator("MULTI BETTINGAREA",f"{game}")
+                betAreas = list(randomize.keys())
+                if 'SUPER SIX' in betAreas: betAreas.remove('SUPER SIX')
+                betArea = random.choice(betAreas)
+
+                displayToast(driver, f'TEST: {test}')
+                
+                if test == "BET LIMIT":
+                    multiBetLimit(driver, game, gameTable, failedTables, selectedGame, tableNum, intoText, betArea, 
+                        test_case["Below Minimum Limit"], 
+                        test_case["Over Maximum Limit"], 
+                        test_case["Bet Placed Assertion"])
+                elif test == "PLACE BET":
+                    multiPlaceSingle(driver, game, tableNum, betArea, failedTables, gameTable, selectedGame, 
+                        test_case["Bet Placed Assertion"], 
+                        test_case["Bet Limit Assertion"], 
+                        test_case["Balance deduction after confirming bet"], 
+                        test_case["Payout Assertion: Balance after win/lose bet"])
+                elif test == "PLACE ALL":
+                    printText('title','Place bet in all betting area')
+                    break
+                elif test == "SUPER SIX":
+                    betArea = test
+                    printText('title','Place Bet On Super Six')
+                    printTexts('body', 'Table Name: ', intoText.text)
+
+                    actions = ActionChains(driver)
+                    repeat = True
+                    while repeat:
+                        chips = findElements(driver, "MULTI", "CHIP VALUE")
                         for chip in range(len(chips)):
                             selectedChip = chips[chip]
-                            if chips[chip].text == "201":
+                            actions.move_to_element(selectedChip).perform()
+                            
+                            if chips[chip].text == data[1]:
+                                selectedChip.click()
                                 break
-                    except:
-                        editChips(driver, value=201)
-                    selectedChip.click()
-
-                    WaitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
+                            if chip >= 9: editChips(driver, value=201)
+                        break
+                    waitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
 
                     time = findModElement(driver, "MULTI TABLE", "TABLE TIME", table=tableNum)
                     intoInt = int(time.text)
@@ -81,11 +122,27 @@ def playMulti(driver, game, test, report):
                     if intoInt < 5:
                         waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
                         waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
-
-                    waitModClickable(driver, "MULTI BUTTON", "SUPER SIX", table=tableNum)
                     printTexts('body', 'PLACE BET: ', 'SUPER SIX')
-                    waitModClickable(driver, betArea, table=tableNum)
+                    repeat = True
+                    while repeat: 
+                        try:
+                            findModElement(driver, "MULTI BUTTON", "SUPER SIX", click=True, table=tableNum)
+                            findModElement(driver, "MULTI BETTINGAREA", game, betArea, click=True, table=tableNum)
+                            repeat = False
+                        except: continue
+                            
                     findModElement(driver, "MULTI BUTTON", "CONFIRM BUTTON", click=True, table=tableNum)
+                    waitModText(driver, "MULTI", "VALIDATION", text='Bet Successful!', table=tableNum, time=10)
+                    assertBetPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
+                    getText = assertBetPlaced.text.split('\n')
+                    valuePlaced = getText[-1]
+                    assertion('Bet Placed Assertion', valuePlaced, '', operator.ne, test_case["Bet Placed Assertion"], failedTables, gameTable, selectedGame)
+
+                    assertBetLimit = int(valuePlaced) * int(locator("PAYOUT", "BACCARAT", "SUPER SIX"))
+                    assertion('Bet Limit Assertion', assertBetLimit, int(locator("BET LIMIT", "MAX")), operator.le, test_case["Bet Limit Assertion"], failedTables, gameTable, selectedGame)
+
+                    deductedBalance = oldBalance - int(valuePlaced)
+                    assertWinAdded(driver, game, test_case["Payout Assertion: Balance after win/lose bet"], tableNum, betArea, playerBalance, oldBalance, deductedBalance, failedTables, gameTable, selectedGame, valuePlaced)
 
                 else: print("BET LIMIT, PLACE BET, PLACE ALL, SUPER SIX")
 
@@ -97,104 +154,121 @@ def playMulti(driver, game, test, report):
         gameTable = locator(game)
 
         # REPORT STATUS
-        reportSheet(game, report, gameTable, assertTableSwitchStatus, assertBelowLimitStatus, assertOverLimitStatus, assertBetPlacedStatus, assertDeductedBalanceStatus, assertAddedBalanceStatus, selectedGame)
+        reportSheet(*test_case.values())
+
+        for i, key in enumerate(test_case):
+            reportSheet(game, report, failedTables, test_case[key])
 
         waitClickable(driver, "NAV", "FEATURED")
         waitElement(driver, "LOBBY", "MAIN")
-    except:
-        driver.save_screenshot(f"screenshots/{gameTable[selectedGame]}_{Exception}_{date.today()}.png")
+    except Exception as e:
+        print(f'FAILED: {str(e)}')
+        driver.save_screenshot(f"screenshots/{gameTable[selectedGame]}_{date.today()}_{datetime.now().second}.png")
 
-def multiBetLimit(driver, game, assertBelowLimitStatus, assertOverLimitStatus, tableNum, intoText, betArea):
+def multiBetLimit(driver, game, gameTable, failedTables, selectedGame, tableNum, intoText, betArea, belowLimit, overLimit, betPlaced):
     printText('title', 'Minimum Bet Limit')
     printTexts('body', 'Table Name: ', intoText.text)
-
-    chips = findElements(driver, "MULTI", "CHIP VALUE")
-    try:
+    actions = ActionChains(driver)
+    repeat = True
+    while repeat:
+        chips = findElements(driver, "MULTI", "CHIP VALUE")
         for chip in range(len(chips)):
             selectedChip = chips[chip]
+            actions.move_to_element(selectedChip).perform()
+                            
             if chips[chip].text == "1":
-                printTexts('body', "TRY: ", "FOUND CHIP 1")
+                selectedChip.click()
                 break
-    except:
-        printTexts('body', "CATCH: ", "EDIT CHIP")
-        editChips(driver, value=1)
-    selectedChip.click()
-
-    WaitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
+            if chip >= 9: editChips(driver, value=1)
+        break
+                    
+    waitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
 
     time = findModElement(driver, "MULTI TABLE", "TABLE TIME", table=tableNum)
     intoInt = int(time.text)
-    if intoInt < 10:
+    if intoInt < 5:
         waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
         waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
 
     printTexts('body', 'PLACE BET: ', betArea)        
     waitModClickable(driver, "MULTI BETTINGAREA", f"{game}", f"{betArea}", table=tableNum)
     findModElement(driver, "MULTI BUTTON", "CONFIRM BUTTON", click=True, table=tableNum)
-    # assert validation displayed == 'Below Minimum Limit'
-    assertBelowLimit(driver, tableNum, assertBelowLimitStatus)
-
+                    
+                    # assert validation displayed == 'Below Minimum Limit'
+    validate = waitModElement(driver, "MULTI", "VALIDATION", table=tableNum)
+    assertion('Below Minimum Assertion', validate.text, 'Below Minimum Limit', operator.eq, belowLimit, failedTables, gameTable, selectedGame)
+                    
     # //////////////////////////////////////////////////////////
 
     printText('title', 'Maximum Bet Limit')
-                                
-    chips = findElements(driver, "MULTI", "CHIP VALUE")
-    try:
+                                                
+    repeat = True
+    while repeat:
+        chips = findElements(driver, "MULTI", "CHIP VALUE")
         for chip in range(len(chips)):
             selectedChip = chips[chip]
+            actions.move_to_element(selectedChip).perform()
+                            
             if chips[chip].text == "10K":
-                printTexts('body', "TRY: ", "FOUND CHIP 10K")
+                selectedChip.click()
                 break
-    except:
-        printTexts('body', "CATCH: ", "EDIT CHIP")
-        editChips(driver, value=10001)
-    selectedChip.click()
+            if chip >= 9: editChips(driver, value=10001)
+        break
 
-    WaitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
-
+    waitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
     time = findModElement(driver, "MULTI TABLE", "TABLE TIME", table=tableNum)
     intoInt = int(time.text)
 
-    if intoInt < 10:
+    if intoInt < 5:
         waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
         waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
 
     printTexts('body', 'PLACE BET: ', betArea)
-                                            
+                                                            
     repeat = True
     while repeat:
         try:
             waitModClickable(driver, "MULTI BETTINGAREA", f"{game}", f"{betArea}", table=tableNum)
             assertOverLimit = waitModText(driver, "MULTI", "VALIDATION", table=tableNum, time=1, text="Over Maximum Limit!",game=game)
-
             if assertOverLimit:
-                assertAboveLimit(assertOverLimitStatus, assertOverLimit)
+                assertion('Over Limit Assertion', assertOverLimit, True, operator.eq, overLimit, failedTables, gameTable, selectedGame)
                 repeat = False
         except: repeat = True
 
     waitModClickable(driver, "MULTI BUTTON", "CONFIRM BUTTON", table=tableNum)
+    waitModText(driver, "MULTI", "VALIDATION", text='Bet Successful!', table=tableNum, time=10)
+    assertBetPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
+    getText = assertBetPlaced.text.split('\n')
+    valuePlaced = getText[-1]
+
+    assertion('Bet Placed Assertion', valuePlaced, '', operator.ne, betPlaced, failedTables, gameTable, selectedGame)
+
     waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
     waitElement(driver, "MULTI", "TOAST")
 
-def multiPlaceSingle(driver, game, assertBetPlacedStatus, assertDeductedBalanceStatus, assertAddedBalanceStatus, tableNum, betArea):
+
+def multiPlaceSingle(driver, game, tableNum, betArea, failedTables, gameTable, selectedGame, betPlaced, betLimit, betDeducted, betAdded):
     printText('title', 'Place Single Bet')
 
     playerBalance = findElement(driver, "MULTI", "USER BALANCE")
     oldBalance = round(float(playerBalance.text.replace(',','')), 2)
-    # print(oldBalance)
 
     # PLACE BET
-    chips = findElements(driver, "MULTI", "CHIP VALUE")
-    try:
+    actions = ActionChains(driver)
+    repeat = True
+    while repeat:
+        chips = findElements(driver, "MULTI", "CHIP VALUE")
         for chip in range(len(chips)):
             selectedChip = chips[chip]
+            actions.move_to_element(selectedChip).perform()
+            
             if chips[chip].text == "201":
+                selectedChip.click()
                 break
-    except:
-        editChips(driver, value=201)
-    selectedChip.click()
+            if chip >= 9: editChips(driver, value=201)
+        break
 
-    WaitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
+    waitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
 
     time = findModElement(driver, "MULTI TABLE", "TABLE TIME", table=tableNum)
     intoInt = int(time.text)
@@ -206,9 +280,38 @@ def multiPlaceSingle(driver, game, assertBetPlacedStatus, assertDeductedBalanceS
     printTexts('body', 'PLACE BET: ', betArea)
     waitModClickable(driver, "MULTI BETTINGAREA", f"{game}", f"{betArea}", table=tableNum)
     findModElement(driver, "MULTI BUTTON", "CONFIRM BUTTON", click=True, table=tableNum)
-                    
-    assertBetPlaced(driver, assertBetPlacedStatus, tableNum)
+    waitModText(driver, "MULTI", "VALIDATION", text='Bet Successful!', table=tableNum, time=10)
 
-    deductedBalance = assertDeductedBalance(assertDeductedBalanceStatus, playerBalance, oldBalance)
+    assertBetPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
+    getText = assertBetPlaced.text.split('\n')
+    valuePlaced = getText[-1]
+    assertion('Bet Placed Assertion', valuePlaced, '', operator.ne, betPlaced, failedTables, gameTable, selectedGame)
 
-    assertWinAdded(driver, game, assertAddedBalanceStatus, tableNum, betArea, playerBalance, oldBalance, deductedBalance)
+    assertBetLimit = int(valuePlaced) * int(locator("PAYOUT", game, betArea))
+    assertion('Bet Limit Assertion', assertBetLimit, int(locator("BET LIMIT", "MAX")), operator.le, betLimit, failedTables, gameTable, selectedGame)
+
+    deductedBalance = oldBalance - 201
+    assertion('Balance Deducted Assertion', round(deductedBalance, 2), round(float(playerBalance.text.replace(',', '')), 2), operator.eq, betDeducted, failedTables, gameTable, selectedGame)
+    
+    assertWinAdded(driver, game, betAdded, tableNum, betArea, playerBalance, oldBalance, deductedBalance, failedTables, gameTable, selectedGame, 201)
+
+def sideBar(driver, game):
+    waitElement(driver, "PRE LOADING")
+    waitElement(driver, "LOBBY", "MAIN")
+    execJS(driver, 'noFullScreen();')
+    waitClickable(driver, "LOBBY", "ENTER TABLE")
+    waitElement(driver, "INGAME", "MAIN")
+    timer = findElement(driver, "INGAME", "TIMER")
+    if timer.text == 'CLOSED' or int(timer.text) < 5:
+        waitElement(driver, "INGAME", "RESULT")
+        waitElementInvis(driver, "INGAME", "RESULT")
+    
+    waitClickable(driver, "BETTING AREA", game)
+    findElement(driver, "INGAME", "CONFIRM", click=True)
+    waitText(driver, "INGAME", "VALIDATION", text='Bet Successful')
+
+    waitClickable(driver, "INGAME", "SIDEBET")
+    waitElement(driver, "SIDEBET", "MAIN")
+    waitElement(driver, "SIDEBET", "LOBBY")
+
+    tables = findElements(driver, "SIDEBET", "TABLES")
