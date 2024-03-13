@@ -183,13 +183,8 @@ def assertion(assertionTitle, actual, expected, operator, testStatus, failedTabl
 def sampleReport(*args):
     samples = [
         ("sample 1", args[0]),
-        ("sample 2", args[1]),
-        ("sample 3", args[2]),
-        ("sample 4", args[3]),
-        ("sample 5", args[4]),
-        ("sample 6", args[5]),
-        ("sample 7", args[6]),
+        ("sample 2", args[1])
     ]
-    for (sample_list, sample_value) in samples:
+    for (sample_list, sample_value) in enumerate(samples):
         if sample_value:
             print(f"{sample_list}: {sample_value}")

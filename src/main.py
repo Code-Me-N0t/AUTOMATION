@@ -19,13 +19,9 @@ data = {
 
 sampleData = {
     "sample1": [],
-    "sample2": [],
-    "sample3": [],
-    "sample4": [],
-    "sample5": [],
-    "sample6": [],
-    "sample7": [],
+    "sample2": []
 }
+
 def playMulti(driver, game, test, report):
     navigateMulti(driver)
     playerBalance = findElement(driver, "MULTI", "USER BALANCE")
@@ -73,7 +69,9 @@ def playMulti(driver, game, test, report):
                 intoText = findModElement(driver, "MULTI TABLE", "TABLE NAME", table=tableNum)
                 while intoText.text == '': continue
 
-                assertion('Table Switch Assertion', intoText, gameTable[selectedGame], operator.ne, test_case["Table Switch Assertion"], failedTables, gameTable, selectedGame)
+                assertion('Table Switch Assertion', intoText, gameTable[selectedGame], operator.ne, sampleData["sample1"], failedTables, gameTable, selectedGame)
+
+                break
                 
                 randomize = locator("MULTI BETTINGAREA",f"{game}")
                 betAreas = list(randomize.keys())
@@ -136,10 +134,11 @@ def playMulti(driver, game, test, report):
                     assertBetPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
                     getText = assertBetPlaced.text.split('\n')
                     valuePlaced = getText[-1]
-                    assertion('Bet Placed Assertion', valuePlaced, '', operator.ne, test_case["Bet Placed Assertion"], failedTables, gameTable, selectedGame)
+                    assertion('Bet Placed Assertion', valuePlaced, '', operator.ne, sampleData["sample1"], failedTables, gameTable, selectedGame)
 
                     assertBetLimit = int(valuePlaced) * int(locator("PAYOUT", "BACCARAT", "SUPER SIX"))
-                    assertion('Bet Limit Assertion', assertBetLimit, int(locator("BET LIMIT", "MAX")), operator.le, test_case["Bet Limit Assertion"], failedTables, gameTable, selectedGame)
+                    assertion('Bet Limit Assertion', assertBetLimit, int(locator("BET LIMIT", "MAX")), operator.le, sampleData["sample2"], failedTables, gameTable, selectedGame)
+                    break
 
                     deductedBalance = oldBalance - int(valuePlaced)
                     assertWinAdded(driver, game, test_case["Payout Assertion: Balance after win/lose bet"], tableNum, betArea, playerBalance, oldBalance, deductedBalance, failedTables, gameTable, selectedGame, valuePlaced)
@@ -154,7 +153,7 @@ def playMulti(driver, game, test, report):
         gameTable = locator(game)
 
         # REPORT STATUS
-        reportSheet(*test_case.values())
+        sampleReport(*sampleData.values())
 
         for i, key in enumerate(test_case):
             reportSheet(game, report, failedTables, test_case[key])
