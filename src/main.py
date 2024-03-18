@@ -277,24 +277,3 @@ def multiPlaceSingle(driver, game, tableNum, betArea, gameTable, selectedGame):
     assertion('Balance Deducted Assertion', round(deductedBalance, 2), round(float(playerBalance.text.replace(',', '')), 2), operator.eq, test_case["Balance deduction after confirming bet"], failedTables[4], gameTable, selectedGame)
     
     assertWinAdded(driver, game, test_case["Payout Assertion: Balance after win/lose bet"], tableNum, betArea, playerBalance, oldBalance, deductedBalance, valuePlaced, failedTables[5], gameTable, selectedGame)
-
-def sideBar(driver, game):
-    waitElement(driver, "PRE LOADING")
-    waitElement(driver, "LOBBY", "MAIN")
-    execJS(driver, 'noFullScreen();')
-    waitClickable(driver, "LOBBY", "ENTER TABLE")
-    waitElement(driver, "INGAME", "MAIN")
-    timer = findElement(driver, "INGAME", "TIMER")
-    if timer.text == 'CLOSED' or int(timer.text) < 5:
-        waitElement(driver, "INGAME", "RESULT")
-        waitElementInvis(driver, "INGAME", "RESULT")
-    
-    waitClickable(driver, "BETTING AREA", game)
-    findElement(driver, "INGAME", "CONFIRM", click=True)
-    waitText(driver, "INGAME", "VALIDATION", text='Bet Successful')
-
-    waitClickable(driver, "INGAME", "SIDEBET")
-    waitElement(driver, "SIDEBET", "MAIN")
-    waitElement(driver, "SIDEBET", "LOBBY")
-
-    tables = findElements(driver, "SIDEBET", "TABLES")
