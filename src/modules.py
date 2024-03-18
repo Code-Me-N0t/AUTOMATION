@@ -129,10 +129,15 @@ def update_spreadsheet(value, rng):
                     break
         # Update value in the sheet (existing or duplicated)
         if isinstance(value, list):
-            # If value is a list, join its elements into a single string
-            cell_value = ', '.join(str(v) for v in value)
+            # Filter out empty sublists and empty strings
+            non_empty_sublists = [sublist for sublist in value if sublist and all(isinstance(elem, str) and elem.strip() for elem in sublist)]
+            
+            # Join non-empty strings from non-empty sublists into a single string
+            cell_value = ', '.join(''.join(sublist) for sublist in non_empty_sublists)
+            
             # Update values with a list containing a single string
             values = [[cell_value]]
+
         else:
             # If value is not a list, update values with a list containing a single value
             values = [[value]]

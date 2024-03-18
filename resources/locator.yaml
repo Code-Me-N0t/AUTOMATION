@@ -110,8 +110,6 @@ BET LIMIT:
   MAX: 2000
   MIN: 10
 
-
-
 CELL:
   BACCARAT: 4
   DT: 12
@@ -119,38 +117,38 @@ CELL:
   SEDIE: 24
 
 BACCARAT:
-  # - C2
-  # - M1 
-  # - M2 
-  # - M3
-  # - M5
-  # - M6
-  # - M7
-  # - RNG001
-  # - RNG002
-  # - RNG003
-  # - RNG005
-  # - RNG006
-  # - RNG007
-  # - RNG012
-  # - RNG013
+  - C2
+  - M1 
+  - M2 
+  - M3
+  - M5
+  - M6
+  - M7
+  - RNG001
+  - RNG002
+  - RNG003
+  - RNG005
+  - RNG006
+  - RNG007
+  - RNG012
+  - RNG013
   - RNG015
-  # - RNG016
-  # - RNG017
-  # - RNG018
+  - RNG016
+  - RNG017
+  - RNG018
 
 DT:
-  # - P7
-  # - C9
-  # - C10
-  # - C11
-  # - RNG008
-  # - RNG009
-  # - RNG010
-  # - RNG011
-  # - RNG019
-  # - RNG020
-  # - RNG021
+  - P7
+  - C9
+  - C10
+  - C11
+  - RNG008
+  - RNG009
+  - RNG010
+  - RNG011
+  - RNG019
+  - RNG020
+  - RNG021
   - RNG022
 
 SEDIE:

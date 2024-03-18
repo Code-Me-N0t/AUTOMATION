@@ -22,7 +22,7 @@ def driver():
             break
         except TimeoutException:
             if retries < max_retries - 1:
-                displayToast(driver, 'Element not found. Relaunching the driver...')
+                print('Element not found. Relaunching the driver...')
                 driver.quit()
                 driver = webdriver.Chrome(options=option)
                 retries += 1

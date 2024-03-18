@@ -127,7 +127,7 @@ def editChips(driver, value):
     findElement(driver, "INGAME", "CLOSE_BTN", click=True)
 
 # SPREADSHEET REPORT STATUSES
-def reportSheet(*args):
+def reportSheet(report, game, failedTables, *args):
     assert_statuses = [
         ("Table Switch", args[0]),
         ("Below Limit", args[1]),
@@ -137,36 +137,34 @@ def reportSheet(*args):
         ("Added Balance", args[5]),
         ("Bet Limit", args[6])
     ]
-    for (assert_type, assert_list) in assert_statuses:
-        if assert_list:
-            print(f"{assert_type}: {assert_list}")
-    # if report:
-    #     status = "PASSED"
-    #     cell = locator("CELL", f"{game}")
-    #     for index, (assert_type, assert_list) in enumerate(assert_statuses):
-    #         if assert_list:
-    #             if "FAILED" in assert_list:
-    #                 status = "FAILED"
-    #             print(f"{assert_type}: ", assert_list)
-    #             update_spreadsheet(status, f"D{(cell + index)}")
-    #         # if failedTables:
-    #         #     update_spreadsheet(failedTables, f"D{(cell + index)}")
-    # else: 
-    #     print("Report disabled")
+    if report:
+        cell = locator("CELL", f"{game}")
+        for index, (assert_type, assert_list) in enumerate(assert_statuses):
+            status = "PASSED"
+            if assert_list:
+                if "FAILED" in assert_list:
+                    status = "FAILED"
+                    update_spreadsheet(failedTables[index], f"E{(cell + index)}")
+                print(f"{assert_type}: ", assert_list)
+                update_spreadsheet(status, f"D{(cell + index)}")
+        # if failedTables:
+            # update_spreadsheet(failedTables, f"E{(cell + index)}")
+    else: 
+        print("Report disabled")
 
 
 # ASSERTIONS
-def assertWinAdded(driver, game, testStatus, tableNum, betArea, playerBalance, oldBalance, deductedBalance, failedTables, gameTable, selectedGame, betValue):
+def assertWinAdded(driver, game, testStatus, tableNum, betArea, playerBalance, oldBalance, deductedBalance, betValue, failedTables, gameTable, selectedGame):
     newBalance = round(float(playerBalance.text.replace(',','')), 2)
     waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
     assertWin = waitElement(driver, "MULTI", "TOAST")
     payout = locator("PAYOUT", f"{game}", f"{betArea}")
     print(assertWin.text)
     printTexts('body', 'Payout: ', f'1:{payout}')
-
     if "Win" in assertWin.text:
-        addedBalance = (betValue * payout) + newBalance
-        validateAddedBalance = oldBalance - (betValue-(betValue*payout))
+        comPay = float(betValue) * payout
+        addedBalance = comPay + newBalance
+        validateAddedBalance = oldBalance - (float(betValue)-comPay)
         assertion('Win Assertion', round(addedBalance, 2), round(validateAddedBalance, 2), operator.eq, testStatus, failedTables, gameTable, selectedGame)
     else: assertion('Lose Assertion', round(newBalance, 2), round(deductedBalance, 2), operator.eq, testStatus, failedTables, gameTable, selectedGame)
 
@@ -179,12 +177,3 @@ def assertion(assertionTitle, actual, expected, operator, testStatus, failedTabl
         testStatus.append("FAILED")
         failedTables.append(gameTable[selectedGame])
         printTexts('body', assertionTitle, ': FAILED')
-
-def sampleReport(*args):
-    samples = [
-        ("sample 1", args[0]),
-        ("sample 2", args[1])
-    ]
-    for (sample_list, sample_value) in enumerate(samples):
-        if sample_value:
-            print(f"{sample_list}: {sample_value}")
