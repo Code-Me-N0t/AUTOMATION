@@ -8,7 +8,8 @@ test_case = {
     "Bet Placed Assertion": [], 
     "Balance deduction after confirming bet": [], 
     "Payout Assertion: Balance after win/lose bet": [],
-    "Bet Limit Assertion": []
+    "Bet Limit Assertion": [],
+    "Bet Area Empty Assertion": []
 }
 
 data = {
@@ -20,7 +21,7 @@ data = {
 failedTables = [[] for _ in range(len(test_case))]
 
 def playMulti(driver, game, test, report):
-    navigateMulti(driver)
+    navigateTab(driver, "MULTI")
     elements = findElements(driver, "MULTI", "MULTI TABLE")
     gameTable = locator(game)
 
@@ -277,3 +278,98 @@ def multiPlaceSingle(driver, game, tableNum, betArea, gameTable, selectedGame):
     assertion('Balance Deducted Assertion', round(deductedBalance, 2), round(float(playerBalance.text.replace(',', '')), 2), operator.eq, test_case["Balance deduction after confirming bet"], failedTables[4], gameTable, selectedGame)
     
     assertWinAdded(driver, game, test_case["Payout Assertion: Balance after win/lose bet"], tableNum, betArea, playerBalance, oldBalance, deductedBalance, valuePlaced, failedTables[5], gameTable, selectedGame)
+
+def playSidebet(driver, game):
+    waitElement(driver, "PRE LOADING")
+    waitElement(driver, "LOBBY", "MAIN")
+    execJS(driver, "noFullScreen()")
+    waitClickable(driver, "LOBBY", "ENTER TABLE")
+    waitElement(driver, "INGAME", "MAIN")
+    gameTable = locator(game)
+    waitElement(driver, "INGAME", "TIMER")
+    try:
+        for selectedGame in range(len(gameTable)):
+            repeat = True
+            timer = findElement(driver, "INGAME", "TIMER")
+            while repeat:
+                if timer.text == 'CLOSED': 
+                    timer = findElement(driver, "INGAME", "TIMER")
+                    continue
+                elif int(timer.text) < 5: 
+                    timer = findElement(driver, "INGAME", "TIMER")
+                    continue
+                else:
+                    timer = findElement(driver, "INGAME", "TIMER") 
+                    repeat = False
+
+            waitClickable(driver, "INGAME", "BET")
+            findElement(driver, "INGAME", "CONFIRM", click=True)
+            waitElement(driver, "INGAME", "RESULT")
+            waitElementInvis(driver, "INGAME", "RESULT")
+
+            playerBalance = findElement(driver, "INGAME", "BALANCE")
+            oldBalance = round(float(playerBalance.text.replace(',','')), 2)
+
+            # print("Player Balance: ",oldBalance)
+
+            findElement(driver, "INGAME", "SIDEBET", click=True)
+            waitClickable(driver, "SIDEBET", "MAIN")
+            findElement(driver, "SIDEBET", "LOBBY", click=True)
+            
+            elements = findElements(driver, "SIDEBET", "TABLES")
+            
+            printText('title', f"Finding: {gameTable[selectedGame]}")
+            for i in range(len(elements)):
+                name = elements[i]
+                tableNum = locator("SIDEBET","TABLE")+str(i+1)+")"
+
+                while name.text == '': continue
+                actions = ActionChains(driver)
+                actions.move_to_element(name).perform()
+                
+                if gameTable[selectedGame] in name.text:
+                    randomize = locator("SIDE BETTINGAREA",f"{game}")
+                    betAreas = list(randomize.keys())
+                    if 'SUPER SIX' in betAreas: betAreas.remove('SUPER SIX')
+                    betArea = random.choice(betAreas)
+
+                    repeat = True
+                    while repeat:
+                        sideTimer = findModElement(driver, "SIDEBET", "TIMER", table=tableNum)
+                        if int(sideTimer.text) < 5: continue
+                        else: repeat = False
+                        
+                    waitModClickable(driver, "SIDEBET", "BET", table=tableNum)
+                    printTexts('body', 'PLACE BET: ', betArea)
+                    waitModClickable(driver, "SIDE BETTINGAREA", f"{game}", f"{betArea}", table=tableNum)
+                    findModElement(driver, "SIDEBET", "CONFIRM", click=True, table=tableNum)
+
+                    waitModText(driver, "MULTI", "VALIDATION", text='Bet Successful!', table=tableNum, time=10)
+                    assertBetPlaced = findModElement(driver, "SIDE BETTINGAREA", game, betArea, table=tableNum)
+                    getText = assertBetPlaced.text.split('\n')
+                    valuePlaced = getText[-1]
+                    assertion('Bet Placed Assertion', valuePlaced, '', operator.ne, test_case["Bet Placed Assertion"], failedTables[3], gameTable, selectedGame)
+
+                    deductedBalance = oldBalance - int(valuePlaced)
+                    assertWinAdded(driver, game, test_case["Payout Assertion: Balance after win/lose bet"], tableNum, betArea, playerBalance, oldBalance, deductedBalance, int(valuePlaced), failedTables[5], gameTable, selectedGame)
+
+                    waitModElement(driver, "SIDEBET", "RESULT", table=tableNum)
+                    waitModElementInvis(driver, "SIDEBET", "RESULT", table=tableNum)
+
+                    waitModClickable(driver, "SIDEBET", "BET", table=tableNum)
+
+                    betPlaced = findModElement(driver, "SIDE BETTINGAREA", game, betArea, table=tableNum)
+                    getPlaced = betPlaced.text.split('\n')
+                    isEmpty = getPlaced[-1]
+                    print("Betting Area:",isEmpty)
+
+                    assertion('Empty Betarea Assertion', isEmpty, data["Chip Value"], operator.ne, test_case["Bet Area Empty Assertion"], failedTables[7], gameTable, selectedGame)
+
+                    waitClickable(driver, "SIDEBET", "CLOSE")   
+                    break
+                    
+        print(Fore.LIGHTBLACK_EX+"********** end of code **********")
+        findElement(driver, "INGAME", "EXIT", click=True)
+    except StaleElementReferenceException:
+        elements = findElements(driver, "SIDEBET", "TABLES")
+    except Exception as e: print(f'[ERROR]: {str(e)}')

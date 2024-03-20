@@ -27,11 +27,11 @@ def waitElement(driver, *keys, time=600):
     element = WebDriverWait(driver, time).until(EC.visibility_of_element_located(selector))
     return element
 
-def navigateMulti(driver):
+def navigateTab(driver, tab):
     waitElement(driver, "PRE LOADING")
     waitElement(driver, "LOBBY", "MAIN")
     waitElement(driver, "LOBBY", "MENU")
-    waitClickable(driver, "NAV", "MULTI")
+    waitClickable(driver, "NAV", tab)
     waitElement(driver, "MULTI", "MAIN")
 
 def waitModElement(driver, *keys, table=None):
@@ -66,15 +66,15 @@ def waitModElementInvis(driver, *keys, table=None):
     element = WebDriverWait(driver, 60).until(EC.invisibility_of_element_located((By.CSS_SELECTOR, selector)))
     return element
 
-def waitClickable(driver, *keys):
+def waitClickable(driver, *keys, timer=100):
     selector= (By.CSS_SELECTOR, locator(*keys))
-    wait = WebDriverWait(driver, 100)
+    wait = WebDriverWait(driver, timer)
     element = wait.until(EC.element_to_be_clickable(selector))
     element.click()
 
-def waitModClickable(driver, *keys, table=None):
+def waitModClickable(driver, *keys, table=None, timer=100):
     selector = table + " " + locator(*keys)
-    element = WebDriverWait(driver, 100).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
+    element = WebDriverWait(driver, timer).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
     element.click()
 
 def waitText(driver, *keys, text, game=None, number=None):

@@ -30,22 +30,44 @@ INGAME:
   CONFIRM: "div.Confirm"
   TABLE_NAME: "span.point.pr-2"
   TIMER: "span.timer"
+  BET: "div.bet-table.b"
   RESULT: "div.result-board.result-cards"
   SIDEBET: "div#btn-tips"
+  BALANCE: "div.balance"
 
+# SIDEBET LOCATORS BELOW
 SIDEBET:
   MAIN: "div#sidebar div.container"
   LOBBY: "div.v-tabs__div:nth-child(3)"
   TABLES: "div.mini-table-card"
+  TABLE: "div.mini-table-card:nth-child("
+  BET: "button.button:nth-child(2)"
+  TIMER: "div.table-time"
+  BETAREA: "div:nth-child(5) div.align-content-start"
+  CONFIRM: "div.bet-action.offset-item0 > div"
+  CLOSE: "div#sidebar > div.close"
+  RESULT: 'div.mini-game-result'
 
-BETTING AREA:
-  NIUNIU: "div.bet-table-all"
-  THREE CARDS: "div.bet-table-all"
-  BACCARAT: "div.bet-table:nth-child(1)"
-  DRAGON TIGER: "div.bet-table"
+SIDE BETTINGAREA:
+  SEDIE:
+    ODD: "div.bet-table-top:nth-child(1)"
+    EVEN: "div.bet-table-top:nth-child(2)"
+    SMALL: "div.bet-table-top:nth-child(3)"
+    BIG: "div.bet-table-top:nth-child(4)" 
+  BACCARAT:
+    PLAYER: "div.bet-table-bottom:nth-child(4)"
+    BANKER: "div.bet-table-bottom:nth-child(5)"
+  DT:
+    DRAGON: "div.bet-table-bottom:nth-child(3)"
+    TIGER: "div.bet-table-bottom:nth-child(4)"
+  SICBO:
+    ODD: "div.bet-table-top:nth-child(1)"
+    EVEN: "div.bet-table-top:nth-child(2)"
+    SMALL: "div.bet-table-top:nth-child(3)"
+    BIG: "div.bet-table-top:nth-child(4)"
+
 
 # MULTI PLAY TAB LOCATORS BELOW
-
 MULTI:
   MAIN: "div#multi-table"
   MULTI TABLE: "div.flex.table-card-bet.xs12"
@@ -112,13 +134,13 @@ BET LIMIT:
 
 CELL:
   BACCARAT: 4
-  DT: 12
+  DT: 11
   SICBO: 18
-  SEDIE: 24
+  SEDIE: 25
 
 BACCARAT:
   - C2
-  - M1 
+  # - M1 
   - M2 
   - M3
   - M5
@@ -156,4 +178,4 @@ SEDIE:
   # - B02
 
 SICBO:
-  - C12
+  - C12  
