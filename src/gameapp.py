@@ -14,11 +14,11 @@ def get_token():
     header['X-token'] = token
 
     username = {'username': f'{data["Username"]}'}
-    response = requests.get(host+'game-providers/30/games/ogplus/key', headers=header, json=username)
+    response = requests.get(host+env('GAME_KEY'), headers=header, json=username)
     game_key = response.json()['data']['key']
 
     query_params = {'key': game_key}
-    response = requests.get(host+'game-providers/30/play', headers=header, params=query_params)
+    response = requests.get(host+env('SITE_URL'), headers=header, params=query_params)
     return response.json()['data']['url']
 
 
