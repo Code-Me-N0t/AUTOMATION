@@ -127,7 +127,7 @@ def editChips(driver, value):
     findElement(driver, "INGAME", "CLOSE_BTN", click=True)
 
 # SPREADSHEET REPORT STATUSES
-def reportSheet(report, game, failedTables, *args):
+def multiReportSheet(report, game, failedTables, *args):
     assert_statuses = [
         ("Table Switch", args[0]),
         ("Below Limit", args[1]),
@@ -147,8 +147,25 @@ def reportSheet(report, game, failedTables, *args):
                     update_spreadsheet(failedTables[index], f"E{(cell + index)}")
                 print(f"{assert_type}: ", assert_list)
                 update_spreadsheet(status, f"D{(cell + index)}")
-        # if failedTables:
-            # update_spreadsheet(failedTables, f"E{(cell + index)}")
+    else: 
+        print("Report disabled")
+
+def sideReportSheet(report, game, failedTables, *args):
+    assert_statuses = [
+        ("Bet Placed", args[0]),
+        ("Payout Assertion", args[1]),
+        ("Empty Betting Area Assertion", args[2])
+    ]
+    if report:
+        cell = locator("CELL", f"{game}")
+        for index, (assert_type, assert_list) in enumerate(assert_statuses):
+            status = "PASSED"
+            if assert_list:
+                if "FAILED" in assert_list:
+                    status = "FAILED"
+                    # update_spreadsheet(failedTables[index], f"J{(cell + index)}")
+                print(f"{assert_type}: ", assert_list)
+                update_spreadsheet(status, f"I{(cell + index)}")
     else: 
         print("Report disabled")
 
@@ -157,7 +174,7 @@ def reportSheet(report, game, failedTables, *args):
 def assertWinAdded(driver, game, testStatus, tableNum, betArea, playerBalance, oldBalance, deductedBalance, betValue, failedTables, gameTable, selectedGame):
     newBalance = round(float(playerBalance.text.replace(',','')), 2)
     waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
-    assertWin = waitElement(driver, "MULTI", "TOAST")
+    assertWin = waitModElement(driver, "MULTI", "VALIDATION", table=tableNum)
     payout = locator("PAYOUT", f"{game}", f"{betArea}")
     print(assertWin.text)
     printTexts('body', 'Payout: ', f'1:{payout}')
