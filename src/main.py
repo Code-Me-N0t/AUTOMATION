@@ -1,6 +1,13 @@
 from src.modules import *
 from src.helpers import *
 
+lobby_testcase = {
+    "Check the player balance": [],
+    "Check the available games": [],
+    "Check the betting timer": [],
+    "Check enter button": []
+}
+
 test_case = {
     "Table Switch Assertion": [], 
     "Below Minimum Limit": [], 
@@ -252,7 +259,7 @@ def multiPlaceSingle(driver, game, tableNum, betArea, gameTable, selectedGame):
             selectedChip = chips[chip]
             actions.move_to_element(selectedChip).perform()
             
-            if chips[chip].text == data["Chip Value"]:
+            if chips[chip].text == str(data["Chip Value"]):
                 selectedChip.click()
                 break
             if chip >= 9: editChips(driver, value=data["Chip Value"])
@@ -332,13 +339,12 @@ def playSidebet(driver, game, test, report):
 
             playerBalance = findElement(driver, "INGAME", "BALANCE")
             oldBalance = round(float(playerBalance.text.replace(',','')), 2)
-
             findElement(driver, "INGAME", "SIDEBET", click=True)
             waitElement(driver, "SIDEBET", "MAIN")
-            
             findElement(driver, "SIDEBET", "LOBBY", click=True)
-            
             elements = findElements(driver, "SIDEBET", "TABLES")
+
+            if gameTable[selectedGame] == 'M1': continue
             
             printText('title', f"Finding: {gameTable[selectedGame]}")
             for i in range(len(elements)):
@@ -360,7 +366,6 @@ def playSidebet(driver, game, test, report):
                         sideTimer = findModElement(driver, "SIDEBET", "TIMER", table=tableNum)
                         if int(sideTimer.text) < 5: continue
                         else: repeat = False
-                    
                     
                     waitModClickable(driver, "SIDEBET", "BET", table=tableNum)
                     printTexts('body', 'PLACE BET: ', betArea)
@@ -399,3 +404,31 @@ def playSidebet(driver, game, test, report):
     except StaleElementReferenceException:
         elements = findElements(driver, "SIDEBET", "TABLES")
     except Exception as e: print(f'[ERROR]: {str(e)}')
+
+def lobby(driver, test, report):
+    waitElement(driver, "PRE LOADING")
+    waitElement(driver, "LOBBY", "MAIN")
+
+    if test == 'BALANCE':
+        waitElement(driver, "LOBBY", "USER MENU")
+        waitElement(driver, "LOBBY", "BALANCE")
+        
+        # check player balance
+        for i in range(10): lobbyBalance = findElement(driver, "LOBBY", "BALANCE")
+        getLobbyBalance = lobbyBalance.text
+
+        # check balance ingame
+        execJS(driver, "noFullScreen()")
+        findElement(driver, "LOBBY", "ENTER TABLE", click=True)
+        waitElement(driver, "INGAME", "MAIN")
+        ingameBalance = findElement(driver, "INGAME", "BALANCE")
+        print("Ingame main balance:",ingameBalance.text)
+
+        seaterBalance = findElement(driver, "INGAME", "PARTICIPANT BALANCE")
+        print("Participant balance:",seaterBalance.text)
+
+        assertion("Balance Assertion", ingameBalance.text, getLobbyBalance, operator.eq, lobby_testcase["Check the player balance"])
+
+        assertion("Balance Assertion", seaterBalance.text, getLobbyBalance, operator.eq, lobby_testcase["Check the player balance"])
+
+

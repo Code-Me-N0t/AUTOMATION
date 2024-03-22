@@ -185,12 +185,13 @@ def assertWinAdded(driver, game, testStatus, tableNum, betArea, playerBalance, o
         assertion('Win Assertion', round(addedBalance, 2), round(validateAddedBalance, 2), operator.eq, testStatus, failedTables, gameTable, selectedGame)
     else: assertion('Lose Assertion', round(newBalance, 2), round(deductedBalance, 2), operator.eq, testStatus, failedTables, gameTable, selectedGame)
 
-def assertion(assertionTitle, actual, expected, operator, testStatus, failedTables, gameTable, selectedGame):
+def assertion(assertionTitle, actual, expected, operator, testStatus, failedTables=None, gameTable=None, selectedGame=None):
     try:
         assert operator(actual, expected)
         printTexts('body', assertionTitle, ': PASSED')
         testStatus.append("PASSED")
     except AssertionError:
         testStatus.append("FAILED")
-        failedTables.append(gameTable[selectedGame])
+        if failedTables is not None:
+            failedTables.append(gameTable[selectedGame])
         printTexts('body', assertionTitle, ': FAILED')

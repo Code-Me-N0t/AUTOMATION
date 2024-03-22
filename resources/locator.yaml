@@ -15,6 +15,8 @@ LOBBY:
   MENU: "div#game-menu"
   TABLE: "#tables-panel > div > .table-card"
   ENTER TABLE: "#tables-panel > div > .table-card:nth-child(1)"
+  BALANCE: "div.user-data>span"
+  USER MENU: "div#user-menu"
 
 INGAME:
   MAIN: "div#game-content"
@@ -35,6 +37,8 @@ INGAME:
   RESULT: "div.result-board.result-cards"
   SIDEBET: "div#btn-tips"
   BALANCE: "div.balance"
+  PARTICIPANT BALANCE: "div.player-balance"
+  
 
 # SIDEBET LOCATORS BELOW
 SIDEBET:
@@ -140,38 +144,38 @@ CELL:
   SEDIE: 25
 
 BACCARAT:
-  # - C2
-  # - M1 
-  # - M2 
-  # - M3
-  # - M5
-  # - M6
-  # - M7
-  # - RNG001
-  # - RNG002
-  # - RNG003
+  - C2
+  - M1 
+  - M2 
+  - M3
+  - M5
+  - M6
+  - M7
+  - RNG001
+  - RNG002
+  - RNG003
   - RNG005
-  # - RNG006
-  # - RNG007
-  # - RNG012
-  # - RNG013
-  # - RNG015
-  # - RNG016
-  # - RNG017
-  # - RNG018
+  - RNG006
+  - RNG007
+  - RNG012
+  - RNG013
+  - RNG015
+  - RNG016
+  - RNG017
+  - RNG018
 
 DT:
-  # - P7
-  # - C9
-  # - C10
-  # - C11
-  # - RNG008
-  # - RNG009
-  # - RNG010
-  # - RNG011
-  # - RNG019
-  # - RNG020
-  # - RNG021
+  - P7
+  - C9
+  - C10
+  - C11
+  - RNG008
+  - RNG009
+  - RNG010
+  - RNG011
+  - RNG019
+  - RNG020
+  - RNG021
   - RNG022
 
 SEDIE:

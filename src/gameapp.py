@@ -1,9 +1,7 @@
 from src.modules import *
 from src.main import data
 
-game_url = env("host")
-
-host = 'http://161.117.248.87:9003/api/v2/mars/'
+host = env("host")
 
 def get_token():
     header = {
