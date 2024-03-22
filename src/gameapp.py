@@ -5,13 +5,13 @@ host = env("host")
 
 def get_token():
     header = {
-        'X-operator': 'lbtest',
-        'X-key': 'test123',
+        env('OP_NAME'): env('OP_VALUE'),
+        env('T_NAME'): env('T_VALUE'),
     }
 
     response = requests.get(f'{host}token', headers=header)
     token = response.json()['data']['token']
-    header['X-token'] = token
+    header[env('TOKEN')] = token
 
     username = {'username': f'{data["Username"]}'}
     response = requests.get(host+env('GAME_KEY'), headers=header, json=username)
