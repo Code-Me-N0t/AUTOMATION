@@ -2,7 +2,7 @@ from selenium.common.exceptions import ElementClickInterceptedException, Timeout
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-import requests, random, pytest, yaml, re, os, os.path, operator
+import requests, random, pytest, yaml, re, os, os.path, operator, base64, threading
 from googleapiclient.discovery import build
 from selenium.webdriver.common.by import By
 from google.oauth2 import service_account
@@ -18,7 +18,11 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import date, datetime
 from selenium.webdriver.common.action_chains import ActionChains
-import threading
+import sys
+# Add the path to the pytesseract module to sys.path
+sys.path.append('C:\\Users\\Reden Longcop\\Documents\\AUTOMATION\\venv\\Lib\\site-packages')
+import pytesseract
+from PIL import Image
 
 init(autoreset=True)
 

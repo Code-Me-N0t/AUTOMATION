@@ -27,7 +27,7 @@ data = {
     "Username": env("USER_NAME"),
     "Username2": "QAUSERTEST99",
     "Username3": "QAUSERTEST299",
-    "Bet code": 8,
+    "Bet limit": '269',
     "Chip Value": 201
 }
 
@@ -345,7 +345,7 @@ def playSidebet(driver, game, test, report):
             elements = findElements(driver, "SIDEBET", "TABLES")
 
             if gameTable[selectedGame] == 'M1': continue
-            
+
             printText('title', f"Finding: {gameTable[selectedGame]}")
             for i in range(len(elements)):
                 name = elements[i]
@@ -355,7 +355,10 @@ def playSidebet(driver, game, test, report):
                 actions = ActionChains(driver)
                 actions.move_to_element(name).perform()
 
+                game_found = False
+
                 if gameTable[selectedGame] in name.text:
+                    game_found = True
                     randomize = locator("SIDE BETTINGAREA",f"{game}")
                     betAreas = list(randomize.keys())
                     if 'SUPER SIX' in betAreas: betAreas.remove('SUPER SIX')
@@ -396,13 +399,18 @@ def playSidebet(driver, game, test, report):
 
                     waitClickable(driver, "SIDEBET", "CLOSE")   
                     break
+            if game_found == False:
+                print(f"{gameTable[selectedGame]} not found")
+                pass
                     
         print(Fore.LIGHTBLACK_EX+"********** end of code **********")
-        sideReportSheet(report, game, failedTables, *side_testcase.values())
-        findElement(driver, "INGAME", "EXIT", click=True)
+        if game_found == True:
+            sideReportSheet(report, game, failedTables, *side_testcase.values())
+            findElement(driver, "INGAME", "EXIT", click=True)
 
     except StaleElementReferenceException:
         elements = findElements(driver, "SIDEBET", "TABLES")
+        print("stale")
     except Exception as e: print(f'[ERROR]: {str(e)}')
 
 def lobby(driver, test, report):

@@ -81,14 +81,14 @@ def waitText(driver, *keys, text, game=None, number=None):
     selector= (By.CSS_SELECTOR, locator(*keys))
     element = WebDriverWait(driver, 600)
     element.until(EC.text_to_be_present_in_element(selector, text_=text))
-    driver.save_screenshot(f"screenshots/{game}-{text}-{number}.png")
+    # driver.save_screenshot(f"screenshots/{game}-{text}-{number}.png")
     printTexts('body', 'MESSAGE DISPLAYED: ', text)
     return element
 
 def waitModText(driver, *keys, text, game=None, number=None, table=None, time=600):
     selector = table + " " + locator(*keys)
     element = WebDriverWait(driver, time).until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector), text_ = text))
-    driver.save_screenshot(f"screenshots/{game}-{text}-{number}.png")
+    # driver.save_screenshot(f"screenshots/{game}-{text}-{number}.png")
     printTexts('body', 'MESSAGE DISPLAYED: ', text)
     return element
 
@@ -174,7 +174,10 @@ def sideReportSheet(report, game, failedTables, *args):
 def assertWinAdded(driver, game, testStatus, tableNum, betArea, playerBalance, oldBalance, deductedBalance, betValue, failedTables, gameTable, selectedGame):
     newBalance = round(float(playerBalance.text.replace(',','')), 2)
     waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
-    assertWin = waitModElement(driver, "MULTI", "VALIDATION", table=tableNum)
+    repeat = True
+    while repeat:
+        assertWin = waitModElement(driver, "MULTI", "VALIDATION", table=tableNum)
+        if assertWin.text != 'No More Bets!': repeat=False
     payout = locator("PAYOUT", f"{game}", f"{betArea}")
     print(assertWin.text)
     printTexts('body', 'Payout: ', f'1:{payout}')
@@ -194,4 +197,4 @@ def assertion(assertionTitle, actual, expected, operator, testStatus, failedTabl
         testStatus.append("FAILED")
         if failedTables is not None:
             failedTables.append(gameTable[selectedGame])
-        printTexts('body', assertionTitle, ': FAILED')
+        printTexts('body', assertionTitle, f': FAILED \n[Expected:{expected} Actual:{actual}]')
