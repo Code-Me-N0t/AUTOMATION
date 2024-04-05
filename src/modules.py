@@ -2,7 +2,7 @@ from selenium.common.exceptions import ElementClickInterceptedException, Timeout
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-import requests, random, pytest, yaml, re, os, os.path, operator, base64, threading
+import requests, random, pytest, yaml, re, os, os.path, operator, base64, warnings, cv2
 from googleapiclient.discovery import build
 from selenium.webdriver.common.by import By
 from google.oauth2 import service_account
@@ -18,14 +18,26 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import date, datetime
 from selenium.webdriver.common.action_chains import ActionChains
-import sys
-# Add the path to the pytesseract module to sys.path
-sys.path.append('C:\\Users\\Reden Longcop\\Documents\\AUTOMATION\\venv\\Lib\\site-packages')
+from fake_useragent import UserAgent
 import pytesseract
 from PIL import Image
+from io import BytesIO
 
 init(autoreset=True)
+userAgent = UserAgent(platforms="mobile")
 
+def delete_files(directory):
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        try:
+            if os.path.isfile(file_path): os.unlink(file_path)
+        except Exception as e: print(f"Failed to delete {file_path}. Reason: {e}")
+        
+delete_files('screenshots/')
+delete_files('screenshots/assertion/')
+
+def screenshot(driver, table_num, assert_type):
+    driver.save_screenshot(f'screenshots/assertion/{table_num}_{assert_type}.png')
 
 def locator(*keys):
     with open("resources/locator.yaml", "r") as loc:

@@ -1,14 +1,14 @@
 PRE LOADING: "div#pre-loading"
 
 NAV:
-  BACCARAT: "div.v-tabs__div.baccarat"
-  THREE CARDS: "div.v-tabs__div.cards"
-  DRAGON TIGER: "div.v-tabs__div.cards"
-  NIUNIU: "div.v-tabs__div.cards"
-  SEDIE: "div.v-tabs__div.others"
-  ROULETTE: "div.v-tabs__div.others"
+  BACCARAT: "div.baccarat"
+  THREE CARDS: "div.cards"
+  DRAGON TIGER: "div.cards"
+  NIUNIU: "div.cards"
+  SEDIE: "div.others"
+  ROULETTE: "div.others"
   MULTI: "div.v-tabs__div:nth-child(2)"
-  FEATURED: "div.v-tabs__div.featured"
+  FEATURED: "div.featured"
 
 LOBBY:
   MAIN: "div#tables-panel"
@@ -90,9 +90,14 @@ MULTI TABLE:
   TABLE TIME: "div.table-time span"
   TABLE RESULT: "div.mini-game-result"
   TABLE NAME: "span span:nth-child(1)"
+  RESULT TEXT: "div.result-title"
+  RESULT TITLE: "div.result-title>div.mini-card>div:nth-child(2)"
+  CARD POINTS 1: "div.mini-game-result > div:nth-child(1) > div:nth-child(1)"
+  CARD POINTS 2: "div.mini-game-result > div:nth-child(2) > div:nth-child(1)"
 
 MULTI BUTTON:
-  CONFIRM BUTTON: "div.bet-btns.Confirm"
+  CONFIRM: "div.bet-btns.Confirm"
+  CANCEL: "div.bet-btns.Cancel"
   SUPER SIX: "div.super6-switch"
 
 MULTI BETTINGAREA:
@@ -104,7 +109,7 @@ MULTI BETTINGAREA:
   BACCARAT:
     PLAYER: "div.fast-bet-area.player"
     BANKER: "div.fast-bet-area.banker"
-    SUPER SIX: "div.fast-bet-area.super6"
+  SUPER SIX: "div.fast-bet-area.super6"
   DT:
     DRAGON: "div.fast-bet-area.dragon"
     TIGER: "div.fast-bet-area.tiger"
@@ -139,9 +144,9 @@ BET LIMIT:
 
 CELL:
   BACCARAT: 4
-  DT: 11
-  SICBO: 18
-  SEDIE: 25
+  DT: 22
+  SICBO: 39
+  SEDIE: 53
 
 BACCARAT:
   - C2
@@ -166,17 +171,17 @@ BACCARAT:
 
 DT:
   - P7
-  # - C9
+  - C9
   - C10
-  # - C11
-  # - RNG008
-  # - RNG009
-  # - RNG010
-  # - RNG011
-  # - RNG019
-  # - RNG020
-  # - RNG021
-  # - RNG022
+  - C11
+  - RNG008
+  - RNG009
+  - RNG010
+  - RNG011
+  - RNG019
+  - RNG020
+  - RNG021
+  - RNG022
 
 SEDIE:
   - B01
@@ -184,3 +189,38 @@ SEDIE:
 
 SICBO:
   - C12  
+
+# CARD POINTS
+CARDS:
+  DT:
+    O: 0
+    A: 1
+    '2': 2
+    '3': 3
+    '4': 4
+    '5': 5
+    '6': 6
+    '7': 7
+    '8': 8
+    c: 9
+    '9': 9
+    '1': 10
+    J: 11
+    Q: 12
+    K: 13
+  BACCARAT:
+    O: 0
+    A: 1
+    '2': 2
+    '3': 3
+    '4': 4
+    '5': 5
+    '6': 6
+    '7': 7
+    '8': 8
+    c: 9
+    '9': 9
+    '1': 0
+    J: 0
+    Q: 0
+    K: 0

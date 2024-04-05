@@ -82,14 +82,14 @@ def waitText(driver, *keys, text, game=None, number=None):
     element = WebDriverWait(driver, 600)
     element.until(EC.text_to_be_present_in_element(selector, text_=text))
     # driver.save_screenshot(f"screenshots/{game}-{text}-{number}.png")
-    printTexts('body', 'MESSAGE DISPLAYED: ', text)
+    # printTexts('body', 'MESSAGE DISPLAYED: ', text)
     return element
 
 def waitModText(driver, *keys, text, game=None, number=None, table=None, time=600):
     selector = table + " " + locator(*keys)
     element = WebDriverWait(driver, time).until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector), text_ = text))
     # driver.save_screenshot(f"screenshots/{game}-{text}-{number}.png")
-    printTexts('body', 'MESSAGE DISPLAYED: ', text)
+    # printTexts('body', 'MESSAGE DISPLAYED: ', text)
     return element
 
 def inputValue(driver, *keys, value):
@@ -116,7 +116,9 @@ def printTexts(value, caption, text):
         'passed': Fore.GREEN
     }
     color = color_map.get(value)
-    print(f"{caption}{color}{text}")
+    str_space = len(caption)
+    space = "." * (30-str_space)
+    print(f"{caption}{color}{space}{text}")
 
 def editChips(driver, value):
     findElement(driver, "INGAME", "EDIT_CHIP", click=True)
@@ -126,27 +128,65 @@ def editChips(driver, value):
     findElement(driver, "INGAME", "SAVE_BTN", click=True)
     findElement(driver, "INGAME", "CLOSE_BTN", click=True)
 
+def BettingTimer(driver, tableNum):
+    waitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
+    time = findModElement(driver, "MULTI TABLE", "TABLE TIME", table=tableNum)
+    intoInt = int(time.text)
+    if intoInt < 5:
+        waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
+        waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
+
+def EditChips(driver, actions, chipValue):
+    repeat = True
+    while repeat:
+        chips = findElements(driver, "MULTI", "CHIP VALUE")
+        for chip in range(len(chips)):
+            selectedChip = chips[chip]
+            actions.move_to_element(selectedChip).perform()
+                                        
+            if chips[chip].text == str(chipValue):
+                selectedChip.click()
+                break
+            if chip >= 9: editChips(driver, value=chipValue)
+        break
+
 # SPREADSHEET REPORT STATUSES
-def multiReportSheet(report, game, failedTables, *args):
+def multiReportSheet(report, game, tables, *args):
     assert_statuses = [
         ("Table Switch", args[0]),
-        ("Below Limit", args[1]),
-        ("Over Limit", args[2]),
-        ("Bet Placed", args[3]),
-        ("Deducted Balance", args[4]),
-        ("Added Balance", args[5]),
-        ("Bet Limit", args[6])
+        ("Cancel Bet", args[1]),
+        ("Balance Deduction", args[2]),
+        ("Single Bet", args[3]),
+        ("Multiple Bet", args[4]),
+        ("All Bet", args[5]),
+        ("Bet Successful", args[6]),
+        ("No More Bets", args[7]),
+        ("Closed Betting Timer", args[8]),
+        ("Bet Payout", args[9]),
+        ("Empty Betarea", args[10]),
+        ("Super Six", args[11]),
+        ("Bet Record", args[12]),
+        ("Below Bet Limit", args[13]),
+        ("Ask B/P", args[14]),
+        ("Card Result", args[15]),
+        ("Flipped Cards", args[16]),
+        ("All In Bet", args[17]),
     ]
     if report:
         cell = locator("CELL", f"{game}")
         for index, (assert_type, assert_list) in enumerate(assert_statuses):
             status = "PASSED"
+            space = "." * (30-len(assert_type))
             if assert_list:
                 if "FAILED" in assert_list:
                     status = "FAILED"
-                    update_spreadsheet(failedTables[index], f"E{(cell + index)}")
-                print(f"{assert_type}: ", assert_list)
+                    update_spreadsheet(tables[index], f"E{(cell + index)}")
+                    tables[index].clear()
+                # print(f"{assert_type}:{space}", assert_list)
+                printTexts('body', f'{assert_type}:', assert_list)
                 update_spreadsheet(status, f"D{(cell + index)}")
+                assert_list.clear()
+        
     else: 
         print("Report disabled")
 
@@ -169,32 +209,33 @@ def sideReportSheet(report, game, failedTables, *args):
     else: 
         print("Report disabled")
 
-
-# ASSERTIONS
-def assertWinAdded(driver, game, testStatus, tableNum, betArea, playerBalance, oldBalance, deductedBalance, betValue, failedTables, gameTable, selectedGame):
-    newBalance = round(float(playerBalance.text.replace(',','')), 2)
-    waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
-    repeat = True
-    while repeat:
-        assertWin = waitModElement(driver, "MULTI", "VALIDATION", table=tableNum)
-        if assertWin.text != 'No More Bets!': repeat=False
-    payout = locator("PAYOUT", f"{game}", f"{betArea}")
-    print(assertWin.text)
-    printTexts('body', 'Payout: ', f'1:{payout}')
-    if "Win" in assertWin.text:
-        comPay = float(betValue) * payout
-        addedBalance = comPay + newBalance
-        validateAddedBalance = oldBalance - (float(betValue)-comPay)
-        assertion('Win Assertion', round(addedBalance, 2), round(validateAddedBalance, 2), operator.eq, testStatus, failedTables, gameTable, selectedGame)
-    else: assertion('Lose Assertion', round(newBalance, 2), round(deductedBalance, 2), operator.eq, testStatus, failedTables, gameTable, selectedGame)
-
-def assertion(assertionTitle, actual, expected, operator, testStatus, failedTables=None, gameTable=None, selectedGame=None):
+# ASSERTION
+def assertion(driver,assertionTitle, actual, expected, operator, testStatus, failedTables=None, gameTable=None):
+    space = " " * 5
+    space2 = " " * (20 - (7+len(str(actual))))
+    space3 = " " * (23 - (10+len(str(expected))))
     try:
         assert operator(actual, expected)
-        printTexts('body', assertionTitle, ': PASSED')
+        printTexts('body', f'{assertionTitle}:', f'PASSED {space}Actual: {actual}{space2}Expected: {expected}{space3}Condition: {operator.__name__}')
         testStatus.append("PASSED")
     except AssertionError:
         testStatus.append("FAILED")
-        if failedTables is not None:
-            failedTables.append(gameTable[selectedGame])
-        printTexts('body', assertionTitle, f': FAILED \n[Expected:{expected} Actual:{actual}]')
+        if failedTables is not None: failedTables.append(gameTable)
+        printTexts('failed', f'{assertionTitle}:', f'FAILED {space}Actual: {actual}{space2}Expected: {expected}{space3}Condition: {operator.__name__}')
+    screenshot(driver, gameTable, assertionTitle)
+
+
+
+def decodeBase64(index, card, gametable):
+    image_string = card.value_of_css_property('background-image')
+    base64_string = re.search(r'url\("?(.*?)"?\)', image_string).group(1)
+    base64_string = base64_string.replace('data:image/png;base64,','')
+    image_data = base64.b64decode(base64_string)
+    image_data = BytesIO(image_data)
+    Image.open(image_data).save(f'image/{gametable}_card{index}.png')
+    read = cv2.imread(f'image/{gametable}_card{index}.png')
+    color = cv2.cvtColor(read, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.threshold(color, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    value = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
+    card_value = value[0]
+    return card_value
