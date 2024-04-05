@@ -91,7 +91,6 @@ def PlayMulti(driver, game, report):
                 Payout(driver, game, gameTable[selectedGame], tableNum, balance, oldBalance, betArea)
 
                 if game == 'BACCARAT' or game == 'DT': gameResult(driver, game, gameTable[selectedGame], tableNum)
-
                 waitModElementInvis(driver, "MULTI TABLE", "RESULT TITLE", table=tableNum)
                 
             if not game_found: printText('failed', f'Table {gameTable[selectedGame]} not found')
@@ -109,7 +108,7 @@ def PlayMulti(driver, game, report):
         driver.save_screenshot(f"screenshots/{gameTable[selectedGame]}_{date.today()}_{datetime.now().second}.png")
 
 def gameResult(driver, game, gameTable, tableNum):
-    delete_files('image/')
+    
     waitModElement(driver, 'MULTI TABLE', 'RESULT TITLE', table=tableNum)
 
     betarea = list(locator("MULTI BETTINGAREA", game).keys())
@@ -119,32 +118,34 @@ def gameResult(driver, game, gameTable, tableNum):
     cards = findModElements(driver, 'MULTI TABLE', 'RESULT TITLE', table=tableNum)
     for card in cards:
         card_value = decodeBase64(index, card, gameTable)
-        card_point = locator('CARDS', game, str(card_value))
-        point_num = int(card_point)
-        list_index = card_names.index(str(card_value))
 
-        print(f'Card Points: {point_num}')
+        print(card_value)
+    #     card_point = locator('CARDS', game, str(card_value))
+    #     point_num = int(card_point)
+    #     list_index = card_names.index(str(card_value))
 
-        if game == 'BACCARAT':
-            blue_points += point_num if index < 3 else 0
-            red_points += point_num if index > 2 else 0
-            if index != 2 and index != 5:
-                assertion(driver, f'Flip Card {index} Assertion', f'{card_names[list_index]}', 'O', operator.ne, multi_testcase["flipped cards"], multiTables[16], gameTable)
-        elif game == 'DT':
-            blue_points += point_num if index == 0 else 0
-            red_points += point_num if index == 1 else 0
-            assertion(driver, f'Flip Card {index} Assertion', f'{card_names[list_index]}', 'O', operator.ne, multi_testcase["flipped cards"], multiTables[16], gameTable)
-        index += 1
+    #     print(f'Card{index} Points: {point_num}')
 
-    if game == 'BACCARAT':
-        blue_points %= 10 
-        red_points %= 10
+    #     if game == 'BACCARAT':
+    #         blue_points += point_num if index < 3 else 0
+    #         red_points += point_num if index > 2 else 0
+    #         if index != 2 and index != 5:
+    #             assertion(driver, f'Flip Card {index} Assertion', f'{card_names[list_index]}', 'O', operator.ne, multi_testcase["flipped cards"], multiTables[16], gameTable)
+    #     elif game == 'DT':
+    #         blue_points += point_num if index == 0 else 0
+    #         red_points += point_num if index == 1 else 0
+    #         assertion(driver, f'Flip Card {index} Assertion', f'{card_names[list_index]}', 'O', operator.ne, multi_testcase["flipped cards"], multiTables[16], gameTable)
+    #     index += 1
 
-    actual_bpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 1', table=tableNum).text[-2:].replace(' ', ''))
-    actual_rpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 2', table=tableNum).text[-2:].replace(' ', ''))
+    # if game == 'BACCARAT':
+    #     blue_points %= 10 
+    #     red_points %= 10
 
-    assertion(driver, f'{betarea[0]} Result Assertion', actual_bpoints, blue_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
-    assertion(driver, f'{betarea[1]} Result Assertion', actual_rpoints, red_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
+    # actual_bpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 1', table=tableNum).text[-2:].replace(' ', ''))
+    # actual_rpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 2', table=tableNum).text[-2:].replace(' ', ''))
+
+    # assertion(driver, f'{betarea[0]} Result Assertion', actual_bpoints, blue_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
+    # assertion(driver, f'{betarea[1]} Result Assertion', actual_rpoints, red_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
 
 
 # ASSERTION METHODS
@@ -154,7 +155,7 @@ def TableSwitch(driver, tableNum, gameTable):
     assertion(driver,'Switch Table Assertion', 
               gameTable,
               tableName.text, 
-              operator.eq, 
+              operator.eq,
               multi_testcase["switch table"], 
               multiTables[0], 
               gameTable

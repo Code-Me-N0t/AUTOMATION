@@ -150,6 +150,22 @@ def EditChips(driver, actions, chipValue):
             if chip >= 9: editChips(driver, value=chipValue)
         break
 
+def decodeBase64(index, card, gametable):
+    image_string = card.value_of_css_property('background-image')
+    base64_string = re.search(r'url\("?(.*?)"?\)', image_string).group(1)
+    base64_string = base64_string.replace('data:image/png;base64,','')
+
+    image_data = base64.b64decode(base64_string)
+    image_data = BytesIO(image_data)
+    Image.open(image_data).save(f'decoded_images/{gametable}_card{index}.png')
+    
+    img = cv2.imread(f'decoded_images/{gametable}_card{index}.png')
+    img = cv2.medianBlur(img,5)
+    value = pytesseract.image_to_string(img, lang='eng', config='--psm 6')
+
+    card_value = value[0]
+    return card_value
+
 # SPREADSHEET REPORT STATUSES
 def multiReportSheet(report, game, tables, *args):
     assert_statuses = [
@@ -181,11 +197,10 @@ def multiReportSheet(report, game, tables, *args):
                 if "FAILED" in assert_list:
                     status = "FAILED"
                     update_spreadsheet(tables[index], f"E{(cell + index)}")
-                    tables[index].clear()
-                # print(f"{assert_type}:{space}", assert_list)
                 printTexts('body', f'{assert_type}:', assert_list)
                 update_spreadsheet(status, f"D{(cell + index)}")
                 assert_list.clear()
+        tables.clear()
     else: print("Report disabled")
 
 def sideReportSheet(report, game, failedTables, *args):
@@ -220,17 +235,3 @@ def assertion(driver,assertionTitle, actual, expected, operator, testStatus, fai
         if failedTables is not None: failedTables.append(gameTable)
         printTexts('failed', f'{assertionTitle}:', f'FAILED {space}Actual: {actual}{space2}Expected: {expected}{space3}Condition: {operator.__name__}')
     screenshot(driver, gameTable, assertionTitle)
-
-def decodeBase64(index, card, gametable):
-    image_string = card.value_of_css_property('background-image')
-    base64_string = re.search(r'url\("?(.*?)"?\)', image_string).group(1)
-    base64_string = base64_string.replace('data:image/png;base64,','')
-    image_data = base64.b64decode(base64_string)
-    image_data = BytesIO(image_data)
-    Image.open(image_data).save(f'decoded_images/{gametable}_card{index}.png')
-    read = cv2.imread(f'decoded_images/{gametable}_card{index}.png')
-    color = cv2.cvtColor(read, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.threshold(color, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-    value = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
-    card_value = value[0]
-    return card_value
