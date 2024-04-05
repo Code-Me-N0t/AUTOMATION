@@ -186,9 +186,7 @@ def multiReportSheet(report, game, tables, *args):
                 printTexts('body', f'{assert_type}:', assert_list)
                 update_spreadsheet(status, f"D{(cell + index)}")
                 assert_list.clear()
-        
-    else: 
-        print("Report disabled")
+    else: print("Report disabled")
 
 def sideReportSheet(report, game, failedTables, *args):
     assert_statuses = [
@@ -206,8 +204,7 @@ def sideReportSheet(report, game, failedTables, *args):
                     # update_spreadsheet(failedTables[index], f"J{(cell + index)}")
                 print(f"{assert_type}: ", assert_list)
                 update_spreadsheet(status, f"I{(cell + index)}")
-    else: 
-        print("Report disabled")
+    else: print("Report disabled")
 
 # ASSERTION
 def assertion(driver,assertionTitle, actual, expected, operator, testStatus, failedTables=None, gameTable=None):
@@ -224,16 +221,14 @@ def assertion(driver,assertionTitle, actual, expected, operator, testStatus, fai
         printTexts('failed', f'{assertionTitle}:', f'FAILED {space}Actual: {actual}{space2}Expected: {expected}{space3}Condition: {operator.__name__}')
     screenshot(driver, gameTable, assertionTitle)
 
-
-
 def decodeBase64(index, card, gametable):
     image_string = card.value_of_css_property('background-image')
     base64_string = re.search(r'url\("?(.*?)"?\)', image_string).group(1)
     base64_string = base64_string.replace('data:image/png;base64,','')
     image_data = base64.b64decode(base64_string)
     image_data = BytesIO(image_data)
-    Image.open(image_data).save(f'image/{gametable}_card{index}.png')
-    read = cv2.imread(f'image/{gametable}_card{index}.png')
+    Image.open(image_data).save(f'decoded_images/{gametable}_card{index}.png')
+    read = cv2.imread(f'decoded_images/{gametable}_card{index}.png')
     color = cv2.cvtColor(read, cv2.COLOR_BGR2GRAY)
     thresh = cv2.threshold(color, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     value = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
