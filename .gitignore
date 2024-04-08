@@ -5,5 +5,5 @@ screenshots/
 venv
 .pytest_cache
 __pychache__
-image/
+decoded_images/
 altMain.py
