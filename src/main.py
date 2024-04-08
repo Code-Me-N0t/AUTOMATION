@@ -91,18 +91,31 @@ def PlayMulti(driver, game, report):
                 Payout(driver, game, gameTable[selectedGame], tableNum, balance, oldBalance, betArea)
 
                 if game == 'BACCARAT' or game == 'DT': gameResult(driver, game, gameTable[selectedGame], tableNum)
+
                 waitModElementInvis(driver, "MULTI TABLE", "RESULT TITLE", table=tableNum)
+
+                # betPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
+                # getText = betPlaced.text.split('\n')
+                # valuePlaced = getText[-1]
+                # assertion(driver,'Empty Betarea Assertion', 
+                #         valuePlaced, 
+                #         str(data["chip value"]), 
+                #         operator.ne, 
+                #         multi_testcase["empty betareas on new round"], 
+                #         multiTables[10], 
+                #         gameTable
+                # )                
                 
             if not game_found: printText('failed', f'Table {gameTable[selectedGame]} not found')
             
             elements = findElement(driver, "MULTI", "MULTI TABLE")
-        gameTable = locator(game)
         printText('body', '\n************************** end of code **************************')
         # report
         multiReportSheet(report, game, multiTables, *multi_testcase.values())
 
         waitClickable(driver, "NAV", "FEATURED")
         waitElement(driver, "LOBBY", "MAIN")
+        gameTable = locator(game)
     except Exception as e:
         print(f'[ERROR]: {str(e)}')
         driver.save_screenshot(f"screenshots/{gameTable[selectedGame]}_{date.today()}_{datetime.now().second}.png")
@@ -110,43 +123,74 @@ def PlayMulti(driver, game, report):
 def gameResult(driver, game, gameTable, tableNum):
     
     waitModElement(driver, 'MULTI TABLE', 'RESULT TITLE', table=tableNum)
-
+    card_dict = locator("CARDS", game)
     betarea = list(locator("MULTI BETTINGAREA", game).keys())
-    card_names = list(locator("CARDS", game).keys())
-    blue_points = red_points = index = 0
+    list_name = ''
+    blue_points = red_points = list_value = 0
+    index = 1
 
     cards = findModElements(driver, 'MULTI TABLE', 'RESULT TITLE', table=tableNum)
     for card in cards:
         card_value = decodeBase64(index, card, gameTable)
+        
+        for key, value in card_dict.items():
+            if card_value in key:
+                list_name = key
+                list_value = value
+                break
+        
+        # list_index = card_names.index(list_name)
+        # print(f'Card Value: {card_value}')
+        # print(f'Card Index: {list_index}')
+        # print(f'Card Name: {list_name}')
+        # print(f'Card Value: {list_value}\n')
 
-        print(card_value)
-    #     card_point = locator('CARDS', game, str(card_value))
-    #     point_num = int(card_point)
-    #     list_index = card_names.index(str(card_value))
+        if game == 'BACCARAT':
+            blue_points += list_value if index < 4 else 0
+            red_points += list_value if index > 3 else 0
+            if index != 3 and index != 6:
+                assertion(driver, f'Flip Cards Assertion', f'{list_name}', 'e', operator.ne, multi_testcase["flipped cards"], multiTables[16], gameTable)
+        if game == 'DT':
+            blue_points += list_value if index == 1 else 0
+            red_points += list_value if index == 2 else 0
+            assertion(driver, f'Flip Cards Assertion', f'{list_name}', 'e', operator.ne, multi_testcase["flipped cards"], multiTables[16], gameTable)
+        index += 1
 
-    #     print(f'Card{index} Points: {point_num}')
+    if game == 'BACCARAT':
+        blue_points %= 10 
+        red_points %= 10
 
-    #     if game == 'BACCARAT':
-    #         blue_points += point_num if index < 3 else 0
-    #         red_points += point_num if index > 2 else 0
-    #         if index != 2 and index != 5:
-    #             assertion(driver, f'Flip Card {index} Assertion', f'{card_names[list_index]}', 'O', operator.ne, multi_testcase["flipped cards"], multiTables[16], gameTable)
-    #     elif game == 'DT':
-    #         blue_points += point_num if index == 0 else 0
-    #         red_points += point_num if index == 1 else 0
-    #         assertion(driver, f'Flip Card {index} Assertion', f'{card_names[list_index]}', 'O', operator.ne, multi_testcase["flipped cards"], multiTables[16], gameTable)
-    #     index += 1
+    actual_bpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 1', table=tableNum).text[-2:].replace(' ', ''))
+    actual_rpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 2', table=tableNum).text[-2:].replace(' ', ''))
 
-    # if game == 'BACCARAT':
-    #     blue_points %= 10 
-    #     red_points %= 10
+    assertion(driver, f'{betarea[0]} Result Assertion', actual_bpoints, blue_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
+    assertion(driver, f'{betarea[1]} Result Assertion', actual_rpoints, red_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
 
-    # actual_bpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 1', table=tableNum).text[-2:].replace(' ', ''))
-    # actual_rpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 2', table=tableNum).text[-2:].replace(' ', ''))
+def sample(driver):
+    cards = locator("CARDS", 'BACCARAT')
+    card_names = list(locator("CARDS", 'BACCARAT').keys())
+    card_value = 'O'
+    list_name = ''
+    list_value = 0
+    
+    for key, value in cards.items():
+        if card_value in key:
+            list_name = key
+            list_value = value
 
-    # assertion(driver, f'{betarea[0]} Result Assertion', actual_bpoints, blue_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
-    # assertion(driver, f'{betarea[1]} Result Assertion', actual_rpoints, red_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
+    list_index = card_names.index(list_name) #get the value name index
+    print(f'List Index: {list_index}')
+    print(f'List Name: {list_name}')
+    print(f'List Value: {list_value}')
+    # list_value = cards[5].index(str(card_value)) #get the value index
+    # print(f'List Value: {list_value}')
+    # num_card_value = cards[list_index][list_value]
+    # print(list_index, num_card_value)
 
+    # key = cards[]
+
+    # card_point = cards
+    # print(card_point)
 
 # ASSERTION METHODS
 def TableSwitch(driver, tableNum, gameTable):

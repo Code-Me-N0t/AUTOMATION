@@ -117,8 +117,8 @@ def printTexts(value, caption, text):
     }
     color = color_map.get(value)
     str_space = len(caption)
-    space = "." * (30-str_space)
-    print(f"{caption}{color}{space}{text}")
+    space = "." * (40-str_space)
+    print(f"{caption}{color}{space} {text}")
 
 def editChips(driver, value):
     findElement(driver, "INGAME", "EDIT_CHIP", click=True)
@@ -158,12 +158,17 @@ def decodeBase64(index, card, gametable):
     image_data = base64.b64decode(base64_string)
     image_data = BytesIO(image_data)
     Image.open(image_data).save(f'decoded_images/{gametable}_card{index}.png')
-    
-    img = cv2.imread(f'decoded_images/{gametable}_card{index}.png')
-    img = cv2.medianBlur(img,5)
-    value = pytesseract.image_to_string(img, lang='eng', config='--psm 6')
 
-    card_value = value[0]
+    img = Image.open(f'decoded_images/{gametable}_card{index}.png')
+    width, height = img.size
+    top_y = int(height * 0.08)
+    bottom_y = int(height * 0.45)
+    crop_img = img.crop((0, top_y, width, bottom_y))
+    crop_img.save(f'decoded_images/{gametable}_card{index}.png')
+
+    value = pytesseract.image_to_string(crop_img, config='--psm 10')
+
+    card_value = str(value[0].replace('\n' or ' ', ''))
     return card_value
 
 # SPREADSHEET REPORT STATUSES

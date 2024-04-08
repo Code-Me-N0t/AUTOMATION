@@ -84,6 +84,17 @@ MULTI:
   USER BALANCE: "div.user-data>span"
   TOAST: "div#bet-msg-toast"
   CHIP VALUE: "div.chip-value"
+  SETTING: 'div.setting'
+
+MULTI SETTINGS:
+  MAIN: 'div#game-setting'
+  HISTORY: 'div#game-setting > div > div:nth-child(3)'
+
+MULTI HISTORY:
+  MAIN: 'div#history'
+  RESULTS: 'table.v-datatable'
+  BET CODE: 'td.bet-code'
+  CARD RESULT: 'div.table-card-history'
 
 MULTI TABLE:
   MAIN: "div.table-card-bet:nth-child("
@@ -94,6 +105,7 @@ MULTI TABLE:
   RESULT TITLE: "div.result-title>div.mini-card>div:nth-child(2)"
   CARD POINTS 1: "div.mini-game-result > div:nth-child(1) > div:nth-child(1)"
   CARD POINTS 2: "div.mini-game-result > div:nth-child(2) > div:nth-child(1)"
+  SHOE ROUND: 'span.pl-1'
 
 MULTI BUTTON:
   CONFIRM: "div.bet-btns.Confirm"
@@ -193,7 +205,7 @@ SICBO:
 # CARD POINTS
 CARDS:
   DT:
-    O: 0
+    e: 0
     A: 1
     '2': 2
     '3': 3
@@ -202,14 +214,13 @@ CARDS:
     '6': 6
     '7': 7
     '8': 8
-    c: 9
     '9': 9
     '1': 10
     J: 11
     Q: 12
     K: 13
   BACCARAT:
-    O: 0
+    e: 0
     A: 1
     '2': 2
     '3': 3
@@ -218,7 +229,6 @@ CARDS:
     '6': 6
     '7': 7
     '8': 8
-    c: 9
     '9': 9
     '1': 0
     J: 0
