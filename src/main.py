@@ -92,19 +92,19 @@ def PlayMulti(driver, game, report):
 
                 if game == 'BACCARAT' or game == 'DT': gameResult(driver, game, gameTable[selectedGame], tableNum)
 
-                waitModElementInvis(driver, "MULTI TABLE", "RESULT TITLE", table=tableNum)
+                BettingTimer(driver, tableNum)
 
-                # betPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
-                # getText = betPlaced.text.split('\n')
-                # valuePlaced = getText[-1]
-                # assertion(driver,'Empty Betarea Assertion', 
-                #         valuePlaced, 
-                #         str(data["chip value"]), 
-                #         operator.ne, 
-                #         multi_testcase["empty betareas on new round"], 
-                #         multiTables[10], 
-                #         gameTable
-                # )                
+                betPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
+                getText = betPlaced.text.split('\n')
+                valuePlaced = getText[-1]
+                assertion(driver,'Empty Betarea Assertion', 
+                        valuePlaced, 
+                        str(data["chip value"]), 
+                        operator.ne, 
+                        multi_testcase["empty betareas on new round"], 
+                        multiTables[10], 
+                        gameTable
+                )                
                 
             if not game_found: printText('failed', f'Table {gameTable[selectedGame]} not found')
             

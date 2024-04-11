@@ -2,6 +2,7 @@
 credentials.json
 token.json
 screenshots/
+screenshots/assertion/
 venv
 .pytest_cache
 __pychache__
