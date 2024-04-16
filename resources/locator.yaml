@@ -88,13 +88,14 @@ MULTI:
 
 MULTI SETTINGS:
   MAIN: 'div#game-setting'
-  HISTORY: 'div#game-setting > div > div:nth-child(3)'
+  HISTORY: 'div#game-setting div div:nth-child(3) div.setting-icon'
 
 MULTI HISTORY:
   MAIN: 'div#history'
-  RESULTS: 'table.v-datatable'
+  RESULTS: 'tbody > tr'
   BET CODE: 'td.bet-code'
   CARD RESULT: 'div.table-card-history'
+  CLOSE: 'div.close'
 
 MULTI TABLE:
   MAIN: "div.table-card-bet:nth-child("
@@ -106,6 +107,7 @@ MULTI TABLE:
   CARD POINTS 1: "div.mini-game-result > div:nth-child(1) > div:nth-child(1)"
   CARD POINTS 2: "div.mini-game-result > div:nth-child(2) > div:nth-child(1)"
   SHOE ROUND: 'span.pl-1'
+  BET MASK: 'div.bet-mask'
 
 MULTI BUTTON:
   CONFIRM: "div.bet-btns.Confirm"
@@ -121,7 +123,6 @@ MULTI BETTINGAREA:
   BACCARAT:
     PLAYER: "div.fast-bet-area.player"
     BANKER: "div.fast-bet-area.banker"
-  SUPER SIX: "div.fast-bet-area.super6"
   DT:
     DRAGON: "div.fast-bet-area.dragon"
     TIGER: "div.fast-bet-area.tiger"
@@ -161,25 +162,25 @@ CELL:
   SEDIE: 53
 
 BACCARAT:
-  # - C2
-  # - M1 
-  # - M2 
-  # - M3
-  # - M5
-  # - M6
-  # - M7
-  # - RNG001
-  # - RNG002
-  # - RNG003
-  # - RNG005
-  # - RNG006
-  # - RNG007
-  # - RNG012
-  # - RNG013
-  # - RNG015
-  # - RNG016
-  # - RNG017
-  # - RNG018
+  - C2
+  - M1 
+  - M2 
+  - M3
+  - M5
+  - M6
+  - M7
+  - RNG001
+  - RNG002
+  - RNG003
+  - RNG005
+  - RNG006
+  - RNG007
+  - RNG012
+  - RNG013
+  - RNG015
+  - RNG016
+  - RNG017
+  - RNG018
 
 DT:
   # - P7
@@ -234,3 +235,7 @@ CARDS:
     J: 0
     Q: 0
     K: 0
+
+BEADS:
+  'e': 'red'
+  '-': 'white'

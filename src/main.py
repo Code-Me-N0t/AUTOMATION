@@ -23,8 +23,8 @@ multi_testcase = {
 }
 
 data = {
-    "username": env("USER_NAME"),
-    "bet limit": "269",
+    "username": env("username"),
+    "betlimit": env('betlimit'),
     "chip value": 201
 }
 
@@ -38,6 +38,7 @@ def PlayMulti(driver, game, report):
     try:
         for selectedGame in range(len(gameTable)):
             printText('title', f"Finding: {gameTable[selectedGame]}")
+            
             game_found = False
             elements = findElements(driver, "MULTI", "MULTI TABLE")
             for i in range(len(elements)):
@@ -74,11 +75,13 @@ def PlayMulti(driver, game, report):
                 
                 randomize = locator("MULTI BETTINGAREA",f"{game}")
                 betAreas = list(randomize.keys())
-                if 'SUPER SIX' in betAreas: betAreas.remove('SUPER SIX')
                 betArea = random.choice(betAreas)
 
                 EditChips(driver, actions, chipValue=data["chip value"])
                 BettingTimer(driver, tableNum)
+
+                shoe = findModElement(driver, 'MULTI TABLE', 'SHOE ROUND', table=tableNum)
+                shoe = shoe.text[-5:].replace(' ', '')
 
                 # TEST CASES
                 TableSwitch(driver, tableNum, gameTable[selectedGame])
@@ -90,38 +93,81 @@ def PlayMulti(driver, game, report):
                 ClosedBetTimer(driver, game, gameTable[selectedGame], tableNum, betArea)
                 Payout(driver, game, gameTable[selectedGame], tableNum, balance, oldBalance, betArea)
 
-                if game == 'BACCARAT' or game == 'DT': gameResult(driver, game, gameTable[selectedGame], tableNum)
-
-                BettingTimer(driver, tableNum)
-
-                betPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
-                getText = betPlaced.text.split('\n')
-                valuePlaced = getText[-1]
-                assertion(driver,'Empty Betarea Assertion', 
-                        valuePlaced, 
-                        str(data["chip value"]), 
-                        operator.ne, 
-                        multi_testcase["empty betareas on new round"], 
-                        multiTables[10], 
-                        gameTable
-                )                
+                if game == 'BACCARAT' or game == 'DT': b, r = gameResult(driver, game, gameTable[selectedGame], tableNum)
                 
+                EmptyBetarea(driver, game, gameTable, tableNum, betArea)
+
+                if game == 'BACCARAT' or game == 'DT':
+                    card_dict = locator("CARDS", game)
+                    betarea = list(locator("MULTI BETTINGAREA", game).keys())
+                    blue_points = red_points = list_value = index = 0
+                    navigateSettings(driver, 'HISTORY')
+
+                    result = findElements(driver, 'MULTI HISTORY', 'RESULTS')
+                    for x in range(len(result)):
+                        if shoe in result[x].text:
+                            findElement(driver, 'MULTI HISTORY', 'BET CODE', click=True)
+
+                            cards = findElements(driver, 'MULTI HISTORY', 'CARD RESULT')
+                            for x in range(len(cards)):
+                                attrib = cards[x].get_attribute('class')
+                                start = attrib.find('base64,') + 7
+                                base64_string = attrib[start:]
+                                if 'card-hidden' not in base64_string:
+                                    card_value = textDecoder(x, gameTable[selectedGame], base64_string, 'history')
+
+                                    for key, value in card_dict.items():
+                                        if card_value in key:
+                                            list_value = value
+                                            break
+                                    
+                                    if game == 'BACCARAT':
+                                        if index < 3: 
+                                            blue_points += list_value
+                                            blue_points %= 10
+                                        if index > 2: 
+                                            red_points += list_value
+                                            red_points %= 10
+                                    elif game == 'DT':
+                                        print(index)
+                                        if index == 0: blue_points += list_value
+                                        if index == 1: red_points += list_value
+                                    index += 1
+
+                    assertion(driver, f'{betarea[0]} Bet Record Assertion', b, blue_points, operator.eq, multi_testcase['record history assert'], multiTables[12], gameTable)
+                    assertion(driver, f'{betarea[1]} Bet Record Assertion', r, red_points, operator.eq, multi_testcase['record history assert'], multiTables[12], gameTable)
+
+                    waitClickable(driver, 'MULTI HISTORY', 'CLOSE')                  
+
             if not game_found: printText('failed', f'Table {gameTable[selectedGame]} not found')
             
             elements = findElement(driver, "MULTI", "MULTI TABLE")
         printText('body', '\n************************** end of code **************************')
+
         # report
         multiReportSheet(report, game, multiTables, *multi_testcase.values())
 
         waitClickable(driver, "NAV", "FEATURED")
         waitElement(driver, "LOBBY", "MAIN")
-        gameTable = locator(game)
     except Exception as e:
         print(f'[ERROR]: {str(e)}')
         driver.save_screenshot(f"screenshots/{gameTable[selectedGame]}_{date.today()}_{datetime.now().second}.png")
 
+def EmptyBetarea(driver, game, gameTable, tableNum, betArea):
+    BettingTimer(driver, tableNum)
+    betPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
+    getText = betPlaced.text.split('\n')
+    valuePlaced = getText[-1]
+    assertion(driver,'Empty Betarea Assertion', 
+                        valuePlaced,
+                        str(data["chip value"]), 
+                        operator.ne, 
+                        multi_testcase["empty betareas on new round"], 
+                        multiTables[10], 
+                        gameTable
+                )
+
 def gameResult(driver, game, gameTable, tableNum):
-    
     waitModElement(driver, 'MULTI TABLE', 'RESULT TITLE', table=tableNum)
     card_dict = locator("CARDS", game)
     betarea = list(locator("MULTI BETTINGAREA", game).keys())
@@ -138,12 +184,6 @@ def gameResult(driver, game, gameTable, tableNum):
                 list_name = key
                 list_value = value
                 break
-        
-        # list_index = card_names.index(list_name)
-        # print(f'Card Value: {card_value}')
-        # print(f'Card Index: {list_index}')
-        # print(f'Card Name: {list_name}')
-        # print(f'Card Value: {list_value}\n')
 
         if game == 'BACCARAT':
             blue_points += list_value if index < 4 else 0
@@ -163,8 +203,10 @@ def gameResult(driver, game, gameTable, tableNum):
     actual_bpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 1', table=tableNum).text[-2:].replace(' ', ''))
     actual_rpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 2', table=tableNum).text[-2:].replace(' ', ''))
 
-    assertion(driver, f'{betarea[0]} Result Assertion', actual_bpoints, blue_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
-    assertion(driver, f'{betarea[1]} Result Assertion', actual_rpoints, red_points, operator.eq, multi_testcase["card result"], multiTables, gameTable)
+    assertion(driver, f'{betarea[0]} Result Assertion', actual_bpoints, blue_points, operator.eq, multi_testcase["card result"], multiTables[15], gameTable)
+    assertion(driver, f'{betarea[1]} Result Assertion', actual_rpoints, red_points, operator.eq, multi_testcase["card result"], multiTables[15], gameTable)
+
+    return actual_bpoints, actual_rpoints
 
 def sample(driver):
     cards = locator("CARDS", 'BACCARAT')
@@ -196,29 +238,24 @@ def sample(driver):
 def TableSwitch(driver, tableNum, gameTable):
     tableName = findModElement(driver, "MULTI TABLE", "TABLE NAME", table=tableNum)
     while tableName.text == '': continue
-    assertion(driver,'Switch Table Assertion', 
-              gameTable,
-              tableName.text, 
-              operator.eq,
-              multi_testcase["switch table"], 
-              multiTables[0], 
-              gameTable
-    )
+    assertion(driver,'Switch Table Assertion', gameTable, tableName.text, operator.eq, multi_testcase["switch table"], multiTables[0], gameTable)
     
 def CancelBet(driver, game, gameTable, tableNum, betArea):
-    waitModClickable(driver, 'MULTI BETTINGAREA', f'{game}', f'{betArea}', table=tableNum)
-    findModElement(driver, 'MULTI BUTTON', 'CANCEL', click=True, table=tableNum)
-    betPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
-    getText = betPlaced.text.split('\n')
-    valuePlaced = getText[-1]
-    assertion(driver,'Cancel Bet Assertion', 
-              valuePlaced, 
-              str(data["chip value"]), 
-              operator.ne, 
-              multi_testcase["cancel bet"], 
-              multiTables[1], 
-              gameTable
-    )
+    try:    
+        waitModClickable(driver, 'MULTI BETTINGAREA', f'{game}', f'{betArea}', table=tableNum)
+        findModElement(driver, 'MULTI BUTTON', 'CANCEL', click=True, table=tableNum)
+        betPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum)
+        getText = betPlaced.text.split('\n')
+        valuePlaced = getText[-1]
+        assertion(driver,'Cancel Bet Assertion',
+                valuePlaced,
+                str(data["chip value"]), 
+                operator.ne, 
+                multi_testcase["cancel bet"], 
+                multiTables[1], 
+                gameTable
+        )
+    except: waitModElementInvis(driver, 'MULTI TABLE', 'BET MASK', table=tableNum)
     
 def BalanceDeduction(driver, gameTable, oldBalance):
     for i in range(30): newbalance = findElement(driver, "MULTI", "USER BALANCE")
@@ -246,18 +283,20 @@ def SingleBet(driver, game, gameTable, tableNum, betArea):
     )
     
 def BetSuccessful(driver, game, gameTable, tableNum, betArea):
-    waitModClickable(driver, 'MULTI BETTINGAREA', f'{game}', f'{betArea}', table=tableNum)
-    findModElement(driver, 'MULTI BUTTON', 'CONFIRM', click=True, table=tableNum)
-    validate = waitModText(driver, 'MULTI', 'VALIDATION', text='Bet Successful!', table=tableNum, time=10)
+    try:
+        waitModClickable(driver, 'MULTI BETTINGAREA', f'{game}', f'{betArea}', table=tableNum)
+        findModElement(driver, 'MULTI BUTTON', 'CONFIRM', click=True, table=tableNum)
+        validate = waitModText(driver, 'MULTI', 'VALIDATION', text='Bet Successful!', table=tableNum, time=10)
+    except: waitModElementInvis(driver, 'MULTI TABLE', 'BET MASK', table=tableNum)
     assertion(driver,'Bet Successful Assertion', 
-              validate, 
-              True, 
-              operator.eq, 
-              multi_testcase["bet successful"], 
-              multiTables[6], 
-              gameTable
-    )
-
+                validate, 
+                True, 
+                operator.eq, 
+                multi_testcase["bet successful"], 
+                multiTables[6], 
+                gameTable
+        )
+        
 def NoMoreBets(driver, gameTable, tableNum):
     validate = waitModText(driver, 'MULTI', 'VALIDATION', text='No More Bets!', table=tableNum)
     assertion(driver,'No More Bets Assertion', 
@@ -277,7 +316,7 @@ def ClosedBetTimer(driver, game, gameTable, tableNum, betArea):
     except ElementClickInterceptedException:validate = True
     assertion(driver,'Bet in Closed Betting Timer', 
               validate, 
-              True, 
+              True,
               operator.eq, 
               multi_testcase['bet in closed betting timer'], 
               multiTables[8], 
@@ -308,7 +347,7 @@ def Payout(driver, game, gameTable, tableNum, balance, oldBalance, betArea):
                   gameTable
     )
     else: assertion(driver,'Lose Assertion', 
-                    round(newBalance, 2), 
+                    round(newBalance, 2),
                     round(deductedBalance, 2), 
                     operator.eq, 
                     multi_testcase["payout"], 

@@ -1,4 +1,3 @@
-# created by virtualenv automatically
 credentials.json
 token.json
 screenshots/
@@ -7,4 +6,4 @@ venv
 .pytest_cache
 __pychache__
 decoded_images/
-altMain.py
+src/altMain.py

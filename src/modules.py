@@ -34,7 +34,8 @@ def delete_files(directory):
         except Exception as e: print(f"Failed to delete {file_path}. Reason: {e}")
         
 delete_files('screenshots/')
-delete_files('decoded_images/')
+delete_files('decoded_images/gametable/')
+delete_files('decoded_images/history/')
 delete_files('screenshots/assertion/')
 
 def screenshot(driver, table_num, assert_type):

@@ -155,21 +155,30 @@ def decodeBase64(index, card, gametable):
     base64_string = re.search(r'url\("?(.*?)"?\)', image_string).group(1)
     base64_string = base64_string.replace('data:image/png;base64,','')
 
+    return textDecoder(index, gametable, base64_string, 'gametable')
+
+def textDecoder(index, gametable, base64_string, directory):
     image_data = base64.b64decode(base64_string)
     image_data = BytesIO(image_data)
-    Image.open(image_data).save(f'decoded_images/{gametable}_card{index}.png')
+    Image.open(image_data).save(f'decoded_images/{directory}/{gametable}_card{index}.png')
 
-    img = Image.open(f'decoded_images/{gametable}_card{index}.png')
+    img = Image.open(f'decoded_images/{directory}/{gametable}_card{index}.png')
     width, height = img.size
     top_y = int(height * 0.08)
     bottom_y = int(height * 0.45)
     crop_img = img.crop((0, top_y, width, bottom_y))
-    crop_img.save(f'decoded_images/{gametable}_card{index}.png')
+    crop_img.save(f'decoded_images/{directory}/{gametable}_card{index}.png')
 
     value = pytesseract.image_to_string(crop_img, config='--psm 10')
 
     card_value = str(value[0].replace('\n' or ' ', ''))
     return card_value
+
+def navigateSettings(driver, where):
+    waitClickable(driver, 'MULTI', 'SETTING')
+    waitElement(driver, 'MULTI SETTINGS', 'MAIN')
+    waitClickable(driver, 'MULTI SETTINGS', where)
+    waitElement(driver, 'MULTI HISTORY', 'MAIN')
 
 # SPREADSHEET REPORT STATUSES
 def multiReportSheet(report, game, tables, *args):
@@ -195,6 +204,7 @@ def multiReportSheet(report, game, tables, *args):
     ]
     if report:
         cell = locator("CELL", f"{game}")
+        num = 0
         for index, (assert_type, assert_list) in enumerate(assert_statuses):
             status = "PASSED"
             space = "." * (30-len(assert_type))
@@ -205,7 +215,8 @@ def multiReportSheet(report, game, tables, *args):
                 printTexts('body', f'{assert_type}:', assert_list)
                 update_spreadsheet(status, f"D{(cell + index)}")
                 assert_list.clear()
-        tables.clear()
+                num = index
+        tables[num].clear()
     else: print("Report disabled")
 
 def sideReportSheet(report, game, failedTables, *args):
@@ -227,7 +238,7 @@ def sideReportSheet(report, game, failedTables, *args):
     else: print("Report disabled")
 
 # ASSERTION
-def assertion(driver,assertionTitle, actual, expected, operator, testStatus, failedTables=None, gameTable=None):
+def assertion(driver,assertionTitle, actual, expected, operator, testStatus, failedTables, gameTable):
     space = " " * 5
     space2 = " " * (20 - (7+len(str(actual))))
     space3 = " " * (23 - (10+len(str(expected))))
