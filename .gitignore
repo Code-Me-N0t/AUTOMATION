@@ -1,9 +1,11 @@
 credentials.json
 token.json
 screenshots/
-screenshots/assertion/
 venv
 .pytest_cache
-__pychache__
+tests/__pychache__
 decoded_images/
+src/__pychache__
 src/altMain.py
+src/imagedecode.py
+src/altGameapp.py

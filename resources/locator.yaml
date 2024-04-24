@@ -71,7 +71,6 @@ SIDE BETTINGAREA:
     SMALL: "div.bet-table-top:nth-child(3)"
     BIG: "div.bet-table-top:nth-child(4)"
 
-
 # MULTI PLAY TAB LOCATORS BELOW
 MULTI:
   MAIN: "div#multi-table"
@@ -86,6 +85,12 @@ MULTI:
   CHIP VALUE: "div.chip-value"
   SETTING: 'div.setting'
 
+PLAYER:
+  MAIN: 'div.profile-slot'
+  AVATAR: 'div.user-avatar'
+  BET LIMIT: 'div.member-container:nth-child(1)>div.label-data'
+  CLOSE: 'div.close-wrap'
+
 MULTI SETTINGS:
   MAIN: 'div#game-setting'
   HISTORY: 'div#game-setting div div:nth-child(3) div.setting-icon'
@@ -93,6 +98,7 @@ MULTI SETTINGS:
 MULTI HISTORY:
   MAIN: 'div#history'
   RESULTS: 'tbody > tr'
+  CON: ':nth-child('
   BET CODE: 'td.bet-code'
   CARD RESULT: 'div.table-card-history'
   CLOSE: 'div.close'
@@ -132,6 +138,12 @@ MULTI BETTINGAREA:
     ODD: "div.fast-bet-area.odd"
     EVEN: "div.fast-bet-area.even"
 
+MULTIPLE BETTINGAREA:
+  SEDIE: "div.fast-bet-area"
+  BACCARAT: "div.fast-bet-area"
+  DT: "div.fast-bet-area"
+  SICBO: "div.fast-bet-area"
+
 PAYOUT:
   SEDIE:
     SMALL: 0.96
@@ -155,35 +167,49 @@ BET LIMIT:
   MAX: 2000
   MIN: 10
 
+BET LIMIT ID:
+  '1':
+    MIN: 199
+    MAX: 49999
+  '2':
+    MIN: 100
+    MAX: 5000
+  '84':
+    MIN: 10
+    MAX: 20000
+  '85':
+    MIN: 10
+    MAX: 150000
+
 CELL:
   BACCARAT: 4
-  DT: 22
-  SICBO: 39
-  SEDIE: 53
+  DT: 21
+  SICBO: 37
+  SEDIE: 51
 
 BACCARAT:
-  - C2
-  - M1 
-  - M2 
-  - M3
-  - M5
-  - M6
-  - M7
-  - RNG001
-  - RNG002
-  - RNG003
-  - RNG005
-  - RNG006
-  - RNG007
-  - RNG012
-  - RNG013
+  # - M1 
+  # - C2
+  # - M2 
+  # - M3
+  # - M5
+  # - M6
+  # - M7
+  # - RNG001
+  # - RNG002
+  # - RNG003
+  # - RNG005
+  # - RNG006
+  # - RNG007
+  # - RNG012
+  # - RNG013
   - RNG015
-  - RNG016
-  - RNG017
-  - RNG018
+  # - RNG016
+  # - RNG017
+  # - RNG018
 
 DT:
-  # - P7
+  - P7
   # - C9
   # - C10
   # - C11
@@ -194,7 +220,7 @@ DT:
   # - RNG019
   # - RNG020
   # - RNG021
-  - RNG022
+  # - RNG022
 
 SEDIE:
   - B01

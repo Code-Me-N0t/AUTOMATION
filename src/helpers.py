@@ -3,6 +3,7 @@ from src.modules import *
 def findElement(driver, *keys, click=False):
     selector=locator(*keys)
     element = driver.find_element(By.CSS_SELECTOR, selector)
+    
     if click: element.click()
     else: return element
 
@@ -32,7 +33,7 @@ def navigateTab(driver, tab):
     waitElement(driver, "LOBBY", "MAIN")
     waitElement(driver, "LOBBY", "MENU")
     waitClickable(driver, "NAV", tab)
-    waitElement(driver, "MULTI", "MAIN")
+    waitElement(driver, "MULTI", "MAIN", time=10)
 
 def waitModElement(driver, *keys, table=None):
     selector = table + " " + locator(*keys)
@@ -46,8 +47,16 @@ def waitShuffling(driver, *keys, table=None):
         print("Shuffling...")
         WebDriverWait(driver, 600).until(EC.invisibility_of_element_located((By.CSS_SELECTOR, selector)))
         return element
-    except: 
-        return False
+    except: return False
+
+def waitBetMask(driver, *keys, table=None):
+    selector = table + " " + locator(*keys)
+    try:
+        element = WebDriverWait(driver, 1).until(EC.visibility_of_element_located((By.CSS_SELECTOR, selector)))
+        
+        WebDriverWait(driver, 600).until(EC.invisibility_of_element_located((By.CSS_SELECTOR, selector)))
+        return element
+    except: return False
 
 def presenceElement(driver, *keys):
     selector = (By.CSS_SELECTOR, locator(*keys))
@@ -100,7 +109,7 @@ def inputValue(driver, *keys, value):
 
 def printText(value, text):
     color_map = {
-        'title': f'\n{Fore.CYAN}',
+        'title': f'{Fore.CYAN}',
         'body': Fore.LIGHTBLACK_EX,
         'failed': Fore.RED,
         'passed': Fore.GREEN
@@ -110,7 +119,7 @@ def printText(value, text):
 
 def printTexts(value, caption, text):
     color_map = {
-        'title': f'\n{Fore.CYAN}',
+        'title': f'{Fore.CYAN}',
         'body': Fore.LIGHTBLACK_EX,
         'failed': Fore.RED,
         'passed': Fore.GREEN
@@ -128,11 +137,11 @@ def editChips(driver, value):
     findElement(driver, "INGAME", "SAVE_BTN", click=True)
     findElement(driver, "INGAME", "CLOSE_BTN", click=True)
 
-def BettingTimer(driver, tableNum):
+def BettingTimer(driver, tableNum, timer=5):
     waitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
     time = findModElement(driver, "MULTI TABLE", "TABLE TIME", table=tableNum)
     intoInt = int(time.text)
-    if intoInt < 5:
+    if intoInt < timer:
         waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
         waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
 
@@ -150,28 +159,33 @@ def EditChips(driver, actions, chipValue):
             if chip >= 9: editChips(driver, value=chipValue)
         break
 
-def decodeBase64(index, card, gametable):
+def decodeBase64(index, card, gametable, game):
     image_string = card.value_of_css_property('background-image')
     base64_string = re.search(r'url\("?(.*?)"?\)', image_string).group(1)
     base64_string = base64_string.replace('data:image/png;base64,','')
 
-    return textDecoder(index, gametable, base64_string, 'gametable')
+    return textDecoder(index, gametable, base64_string, 'gametable', game)
 
-def textDecoder(index, gametable, base64_string, directory):
-    image_data = base64.b64decode(base64_string)
-    image_data = BytesIO(image_data)
-    Image.open(image_data).save(f'decoded_images/{directory}/{gametable}_card{index}.png')
+def textDecoder(index, gametable, base64_string, directory, game):
+    dir = f'decoded_images/{game}/{directory}/{gametable}/'
+    card = f'card{index}.png'
+    create_files(dir)
+    if 'card-hidden' in base64_string: card_value = 'e'
+    else:
+        image_data = base64.b64decode(base64_string)
+        image_data = BytesIO(image_data)
+        Image.open(image_data).save(f'{dir}{card}')
 
-    img = Image.open(f'decoded_images/{directory}/{gametable}_card{index}.png')
-    width, height = img.size
-    top_y = int(height * 0.08)
-    bottom_y = int(height * 0.45)
-    crop_img = img.crop((0, top_y, width, bottom_y))
-    crop_img.save(f'decoded_images/{directory}/{gametable}_card{index}.png')
+        img = Image.open(f'{dir}{card}')
+        width, height = img.size
+        top_y = int(height * 0.08)
+        bottom_y = int(height * 0.45)
+        crop_img = img.crop((0, top_y, width, bottom_y))
+        crop_img.save(f'{dir}{card}')
 
-    value = pytesseract.image_to_string(crop_img, config='--psm 10')
+        value = pytesseract.image_to_string(crop_img, config='--psm 10')
 
-    card_value = str(value[0].replace('\n' or ' ', ''))
+        card_value = str(value[0])
     return card_value
 
 def navigateSettings(driver, where):
@@ -181,42 +195,16 @@ def navigateSettings(driver, where):
     waitElement(driver, 'MULTI HISTORY', 'MAIN')
 
 # SPREADSHEET REPORT STATUSES
-def multiReportSheet(report, game, tables, *args):
-    assert_statuses = [
-        ("Table Switch", args[0]),
-        ("Cancel Bet", args[1]),
-        ("Balance Deduction", args[2]),
-        ("Single Bet", args[3]),
-        ("Multiple Bet", args[4]),
-        ("All Bet", args[5]),
-        ("Bet Successful", args[6]),
-        ("No More Bets", args[7]),
-        ("Closed Betting Timer", args[8]),
-        ("Bet Payout", args[9]),
-        ("Empty Betarea", args[10]),
-        ("Super Six", args[11]),
-        ("Bet Record", args[12]),
-        ("Below Bet Limit", args[13]),
-        ("Ask B/P", args[14]),
-        ("Card Result", args[15]),
-        ("Flipped Cards", args[16]),
-        ("All In Bet", args[17]),
-    ]
+def multiReportSheet(report, game, *args):
     if report:
         cell = locator("CELL", f"{game}")
-        num = 0
-        for index, (assert_type, assert_list) in enumerate(assert_statuses):
-            status = "PASSED"
-            space = "." * (30-len(assert_type))
-            if assert_list:
-                if "FAILED" in assert_list:
-                    status = "FAILED"
-                    update_spreadsheet(tables[index], f"E{(cell + index)}")
-                printTexts('body', f'{assert_type}:', assert_list)
+        for index, (name, values) in enumerate(args):
+            if values:
+                status = "PASSED"
+                if 'FAILED' in values: status = Fore.RED+"FAILED"                
                 update_spreadsheet(status, f"D{(cell + index)}")
-                assert_list.clear()
-                num = index
-        tables[num].clear()
+                print(f'{index} {name}: {status}')
+                values.clear()
     else: print("Report disabled")
 
 def sideReportSheet(report, game, failedTables, *args):
@@ -238,16 +226,22 @@ def sideReportSheet(report, game, failedTables, *args):
     else: print("Report disabled")
 
 # ASSERTION
-def assertion(driver,assertionTitle, actual, expected, operator, testStatus, failedTables, gameTable):
+def assertion(driver,assertionTitle, actual, expected, op, testStatus, failedTables, gameTable):
     space = " " * 5
     space2 = " " * (20 - (7+len(str(actual))))
     space3 = " " * (23 - (10+len(str(expected))))
+    if op is not None:
+        condition = ''
+        if op is operator.eq: condition = 'EQUAL'
+        if op is operator.ne: condition = 'NOT EQUAL'
     try:
-        assert operator(actual, expected)
-        printTexts('body', f'{assertionTitle}:', f'PASSED {space}Actual: {actual}{space2}Expected: {expected}{space3}Condition: {operator.__name__}')
+        assert op(actual, expected)
+        printTexts('body', f'{assertionTitle}:', f'PASSED {space}{actual} should be {condition} to {expected}')
         testStatus.append("PASSED")
     except AssertionError:
         testStatus.append("FAILED")
         if failedTables is not None: failedTables.append(gameTable)
-        printTexts('failed', f'{assertionTitle}:', f'FAILED {space}Actual: {actual}{space2}Expected: {expected}{space3}Condition: {operator.__name__}')
-    screenshot(driver, gameTable, assertionTitle)
+        printTexts('failed', f'{assertionTitle}:', f'PASSED {space}{actual} should be {condition} to {expected}')
+    
+    create_files(f'screenshots/assertion')
+    driver.save_screenshot(f'screenshots/assertion/[{gameTable}][{assertionTitle}].png')

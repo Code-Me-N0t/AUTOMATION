@@ -22,24 +22,21 @@ from fake_useragent import UserAgent
 import pytesseract
 from PIL import Image
 from io import BytesIO
+import shutil
 
 init(autoreset=True)
 userAgent = UserAgent(platforms="mobile")
 
 def delete_files(directory):
-    for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
-        try:
-            if os.path.isfile(file_path): os.unlink(file_path)
-        except Exception as e: print(f"Failed to delete {file_path}. Reason: {e}")
+    if os.path.exists(directory): shutil.rmtree(directory)
+    else: pass
+
+def create_files(directory):
+    if os.path.exists(directory): pass
+    else: os.makedirs(directory)
         
 delete_files('screenshots/')
-delete_files('decoded_images/gametable/')
-delete_files('decoded_images/history/')
-delete_files('screenshots/assertion/')
-
-def screenshot(driver, table_num, assert_type):
-    driver.save_screenshot(f'screenshots/assertion/{table_num}_{assert_type}.png')
+delete_files('decoded_images/')
 
 def locator(*keys):
     with open("resources/locator.yaml", "r") as loc:
@@ -67,7 +64,7 @@ def displayToast(driver, message):
     toast.style.top = '20px';
     toast.style.left = '50%';
     toast.style.transform = 'translateX(-50%)';
-    toast.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    toast.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
     toast.style.color = '#008000';
     toast.style.padding = '10px';
     toast.style.borderRadius = '5px';
