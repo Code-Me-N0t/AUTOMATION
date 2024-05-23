@@ -1,31 +1,38 @@
+# gen imports
+import requests, random, pytest, yaml, re, os, os.path, operator, base64, warnings, cv2, shutil, json, pytesseract
+
+# selenium
 from selenium.common.exceptions import ElementClickInterceptedException, TimeoutException, NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-import requests, random, pytest, yaml, re, os, os.path, operator, base64, warnings, cv2
-from googleapiclient.discovery import build
-from selenium.webdriver.common.by import By
-from google.oauth2 import service_account
-from selenium import webdriver
-from colorama import Fore, init
-from time import sleep
-# new imports below:
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium import webdriver
+
+# google
+from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from datetime import date, datetime
-from selenium.webdriver.common.action_chains import ActionChains
+from googleapiclient.discovery import build
+from google.oauth2 import service_account
+
+# misc
 from fake_useragent import UserAgent
-import pytesseract
-from PIL import Image
+from datetime import date, datetime
+from colorama import Fore, init
+from time import sleep
 from io import BytesIO
-import shutil
+from PIL import Image
 
 init(autoreset=True)
 userAgent = UserAgent(platforms="mobile")
+
+deviceName = os.environ['USERPROFILE'].split(os.path.sep)[-1]
+path = f'C:\\Users\\{deviceName}\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = path
 
 def delete_files(directory):
     if os.path.exists(directory): shutil.rmtree(directory)
@@ -52,6 +59,10 @@ def execJS(driver, function=None):
         script = getScript + f'return {function}'
         run = driver.execute_script(script)
         return run
+
+with open('scenarios.json') as json_file:
+    json_data = json_file.read()
+    scenarios = json.loads(json_data)
 
 def displayToast(driver, message):
     script = f"""
@@ -103,6 +114,16 @@ def duplicate_sheet(service, spreadsheet_id, sheet_id, new_title):
 
     return new_title, new_sheet_id
 
+def update_scenarios(game, test_scenario):
+    cell = locator("CELL", f"{game}")
+    print(f'{Fore.GREEN}Updated game scenario: {game}')
+    for index, (name, values) in enumerate(test_scenario.items()):
+        if values and name:
+            if game != 'BACCARAT' and game != 'DT':
+                if name == 'Card Result' or name == 'Flipped Cards' or name == 'Bet Within Bet Pool': continue
+            if name == 'Bet On Super Six' and game != 'BACCARAT': continue
+            update_spreadsheet(values, f"C{(cell + index)}")
+
 def update_spreadsheet(value, rng):
     new_title = date.today().isoformat()
     # If modifying these scopes, delete the file token.json.
@@ -112,15 +133,15 @@ def update_spreadsheet(value, rng):
     SPREADSHEET_ID = env("SPREADSHEET_ID")
 
     creds = None
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    if os.path.exists("resources/token.json"):
+        creds = Credentials.from_authorized_user_file("resources/token.json", SCOPES)
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token: creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file("resources/credentials.json", SCOPES)
             creds = flow.run_local_server(port=0)
-        with open("token.json", "w") as token: token.write(creds.to_json())
+        with open("resources/token.json", "w") as token: token.write(creds.to_json())
 
     try:
         service = build("sheets", "v4", credentials=creds)
@@ -157,7 +178,9 @@ def update_spreadsheet(value, rng):
         else:
             # If value is not a list, update values with a list containing a single value
             values = [[value]]
-        body = {'values': values}
+        body = {
+            'values': values
+        }
         result = service.spreadsheets().values().update(
             spreadsheetId=SPREADSHEET_ID,
             range=f"{new_sheet_title}!{rng}",  

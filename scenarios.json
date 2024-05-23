@@ -1,6 +1,21 @@
-{
-    "Test Case 1" : "should be able to switch table correctly", 
-    "Test Case 2" : "should be able to switch table correctly", 
-    "Test Case 3" : "should be able to switch table correctly", 
-    "Test Case 4" : "should be able to switch table correctly"
+{   "Switch Table" :                "Should be able to switch table correctly", 
+    "Cancel Bet" :                  "Should be able to cancel an unconfirmed bet", 
+    "Unconfirmed Bet" :             "Unconfirmed bet should be wiped when the dealing phase started", 
+    "Bet Successful" :              "Valid bet should be successful",
+    "Balance Deduction" :           "Balance should be deducted upon confirming a bet",
+    "Single Bet" :                  "Should be able to place a single bet",
+    "Multiple Bet" :                "Should be able to place multiple bets",
+    "No More Bets" :                "Validation message should appear when the round ends",
+    "Bet In Closed Betting Timer" : "Should not be able to place bet on closed betting timer",
+    "Payout" :                      "Payout should be correct based on the odds",
+    "Empty Bet Area" :              "Chips should immediately be wiped when new new round started",
+    "Record History" :              "Transaction should be recorded in the record history",
+    "Correct Bet Limit" :           "Bet limit should be correct upon changing the bet limit code",
+    "Bet Within Bet Limit" :        "Should be able to place bet with the lowest and highest amount within the bet limit",
+    "Bet Below/Above Bet Limit" :   "Bets above and below bet limit and below bet pool should be unsuccessful",
+    "All In" :                      "Should be able to place ALL IN bets",
+    "Bet Within Bet Pool" :         "Bets within bet pool should be successful",
+    "Card Result" :                 "Digital card points and the total card result should be the same",
+    "Flipped Cards" :               "Cards should be flipped",
+    "Bet On Super Six" :            "Should be able to place a bet on Super Six"
 }

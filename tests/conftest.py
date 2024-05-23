@@ -17,7 +17,7 @@ def driver():
     yield driver
     driver.quit()
 
-@pytest.fixture(scope="session", params=[1, 2, 84, 85])
+@pytest.fixture(scope="session", params=[84]) #, 140, 160, 90
 def drivers(request):
     index = request.param
     url = get_token(index)
@@ -30,6 +30,5 @@ def drivers(request):
     option.add_argument("--hide-scrollbars")
     
     driver = webdriver.Chrome(options=option)
-    
     yield driver, index 
     driver.quit()

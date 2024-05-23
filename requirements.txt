@@ -6,3 +6,4 @@ requests
 google_auth_oauthlib
 google-api-python-client
 fake_useragent
+opencv-python

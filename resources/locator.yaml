@@ -28,6 +28,11 @@ INGAME:
   ENTER_VALUE: "div.v-text-field__slot > input[type=tel]"
   SAVE_BTN: "#chip-amounts > div > div.flex.xs12.sm8 > div > div:nth-child(3) > button > div"
   CLOSE_BTN: "div.close-wrap"
+  CHIP SELECTION: 'div.chip-wrap div.img-chip-amount'
+  CHIP WRAP: 'div.chip-wrap'
+  UNSELECT CHIP: 'div.chip-selection:nth-child('
+  SELECT CHIP: 'div.chip-selection'
+  CHIP VALIDATION: 'div.amount-format span'
   VALIDATION: "div#bet-msg-toast > div"
   CONFIRM: "div.Confirm"
   TABLE_NAME: "span.point.pr-2"
@@ -38,7 +43,6 @@ INGAME:
   SIDEBET: "div#btn-tips"
   BALANCE: "div.balance"
   PARTICIPANT BALANCE: "div.player-balance"
-  
 
 # SIDEBET LOCATORS BELOW
 SIDEBET:
@@ -109,11 +113,12 @@ MULTI TABLE:
   TABLE RESULT: "div.mini-game-result"
   TABLE NAME: "span span:nth-child(1)"
   RESULT TEXT: "div.result-title"
-  RESULT TITLE: "div.result-title>div.mini-card>div:nth-child(2)"
+  RESULT TITLE: "div.result-title>div.mini-card"
   CARD POINTS 1: "div.mini-game-result > div:nth-child(1) > div:nth-child(1)"
   CARD POINTS 2: "div.mini-game-result > div:nth-child(2) > div:nth-child(1)"
   SHOE ROUND: 'span.pl-1'
   BET MASK: 'div.bet-mask'
+  TIE: 'div.tie'
 
 MULTI BUTTON:
   CONFIRM: "div.bet-btns.Confirm"
@@ -168,24 +173,24 @@ BET LIMIT:
   MIN: 10
 
 BET LIMIT ID:
-  '1':
-    MIN: 199
-    MAX: 49999
-  '2':
-    MIN: 100
-    MAX: 5000
+  '140':
+    MIN: 5
+    MAX: 200000
+  '160':
+    MIN: 20
+    MAX: 200000
   '84':
     MIN: 10
     MAX: 20000
-  '85':
-    MIN: 10
-    MAX: 150000
+  '90':
+    MIN: 300
+    MAX: 300000
 
 CELL:
   BACCARAT: 4
-  DT: 21
-  SICBO: 37
-  SEDIE: 51
+  DT: 24
+  SICBO: 42
+  SEDIE: 58
 
 BACCARAT:
   # - M1 

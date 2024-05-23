@@ -13,6 +13,12 @@ def findModElement(driver, *keys, click=False, table=None):
     if click: element.click()
     else: return element
 
+def findChildElement(driver, *keys, click=False, mod=None):
+    selector = locator(*keys)+f':nth-child({mod})'
+    element = driver.find_element(By.CSS_SELECTOR, selector)
+    if click: element.click()
+    else: return element
+
 def findElements(driver, *keys):
     selector = (By.CSS_SELECTOR, locator(*keys))
     element = WebDriverWait(driver, 600).until(EC.presence_of_all_elements_located(selector))
@@ -86,19 +92,15 @@ def waitModClickable(driver, *keys, table=None, timer=100):
     element = WebDriverWait(driver, timer).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
     element.click()
 
-def waitText(driver, *keys, text, game=None, number=None):
+def waitText(driver, *keys, text):
     selector= (By.CSS_SELECTOR, locator(*keys))
     element = WebDriverWait(driver, 600)
     element.until(EC.text_to_be_present_in_element(selector, text_=text))
-    # driver.save_screenshot(f"screenshots/{game}-{text}-{number}.png")
-    # printTexts('body', 'MESSAGE DISPLAYED: ', text)
     return element
 
-def waitModText(driver, *keys, text, game=None, number=None, table=None, time=600):
+def waitModText(driver, *keys, text, table=None, time=600):
     selector = table + " " + locator(*keys)
     element = WebDriverWait(driver, time).until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector), text_ = text))
-    # driver.save_screenshot(f"screenshots/{game}-{text}-{number}.png")
-    # printTexts('body', 'MESSAGE DISPLAYED: ', text)
     return element
 
 def inputValue(driver, *keys, value):
@@ -129,14 +131,6 @@ def printTexts(value, caption, text):
     space = "." * (40-str_space)
     print(f"{caption}{color}{space} {text}")
 
-def editChips(driver, value):
-    findElement(driver, "INGAME", "EDIT_CHIP", click=True)
-    findElement(driver, "INGAME", "EDIT_BTN", click=True)
-    findElement(driver, "INGAME", "CLEAR_CHIP", click=True)
-    inputValue(driver, "INGAME", "ENTER_VALUE", value=value)
-    findElement(driver, "INGAME", "SAVE_BTN", click=True)
-    findElement(driver, "INGAME", "CLOSE_BTN", click=True)
-
 def BettingTimer(driver, tableNum, timer=5):
     waitShuffling(driver, "MULTI", "SHUFFLING_TEXT", table=tableNum)
     time = findModElement(driver, "MULTI TABLE", "TABLE TIME", table=tableNum)
@@ -145,26 +139,65 @@ def BettingTimer(driver, tableNum, timer=5):
         waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
         waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tableNum)
 
-def EditChips(driver, actions, chipValue):
+def EditChips(driver, chipValue):
+    formatted_num = FormatNumber(chipValue)
+
+    actions = ActionChains(driver)
+    # print(f'formatted num: {formatted_num}')
     repeat = True
     while repeat:
         chips = findElements(driver, "MULTI", "CHIP VALUE")
-        for chip in range(len(chips)):
-            selectedChip = chips[chip]
-            actions.move_to_element(selectedChip).perform()
-                                        
-            if chips[chip].text == str(chipValue):
-                selectedChip.click()
+        for chip in chips:
+            actions.move_to_element(chip).perform()         
+            if chip.text == formatted_num:
+                chip.click()
+                repeat = False
+                return
+            
+        findElement(driver, "INGAME", "EDIT_CHIP", click=True)
+        chip_select = findElements(driver, 'INGAME', 'CHIP SELECTION')
+
+        for index in range(len(chip_select)):
+            inner_chip = chip_select[index]
+
+            selected_chips = findElements(driver, 'INGAME', 'SELECT CHIP')
+            
+            if formatted_num == inner_chip.text:
+                if len(selected_chips) >= 10:
+                    chip_wrap = findElements(driver, 'INGAME', 'CHIP WRAP')
+                    for unselect_chip in chip_wrap:
+                        if 'chip-selection' in unselect_chip.get_attribute('class'):
+                            unselect_chip.click()
+                            break
+                inner_chip.click()
                 break
-            if chip >= 9: editChips(driver, value=chipValue)
-        break
+            elif index == len(chip_select) -1 and formatted_num != inner_chip.text:
+                edit_chip(driver, chipValue)
 
-def decodeBase64(index, card, gametable, game):
-    image_string = card.value_of_css_property('background-image')
-    base64_string = re.search(r'url\("?(.*?)"?\)', image_string).group(1)
-    base64_string = base64_string.replace('data:image/png;base64,','')
+        findElement(driver, "INGAME", "CLOSE_BTN", click=True)
+        
+def edit_chip(driver, num):
+    findElement(driver, "INGAME", "EDIT_BTN", click=True)
+    findElement(driver, "INGAME", "CLEAR_CHIP", click=True)
+    inputValue(driver, "INGAME", "ENTER_VALUE", value=num)
+    findElement(driver, "INGAME", "SAVE_BTN", click=True)
+    sleep(2)
+    validate = findElement(driver, 'INGAME', 'CHIP VALIDATION')
+    assert validate.text == 'Successfully change the chip amount', f'FAILED: {validate.text}'
 
-    return textDecoder(index, gametable, base64_string, 'gametable', game)
+def FormatNumber(num):
+    if num >= 10000000: 
+        truncated_num = int(num / 10000)
+        formatted_num = '{:.1f}M'.format(truncated_num / 10)
+    elif num >= 1000000: 
+        truncated_num = int(num / 100000)
+        formatted_num = '{:.1f}M'.format(truncated_num / 10)
+    elif num >= 1000: 
+        truncated_num = int(num / 100)
+        formatted_num = '{:.1f}K'.format(truncated_num / 10)
+    else: formatted_num = str(num)
+    formatted_num = formatted_num.replace('.0','')
+    return formatted_num
 
 def textDecoder(index, gametable, base64_string, directory, game):
     dir = f'decoded_images/{game}/{directory}/{gametable}/'
@@ -188,6 +221,17 @@ def textDecoder(index, gametable, base64_string, directory, game):
         card_value = str(value[0])
     return card_value
 
+def getShoe(driver, tablenum):
+    shoe = findModElement(driver, 'MULTI TABLE', 'SHOE ROUND', table=tablenum)
+    shoe_text = shoe.text.split(' ')[-1].strip()
+    return shoe_text
+
+def randomizeBetarea(game):
+    randomize = locator("MULTI BETTINGAREA",f"{game}")
+    betAreas = list(randomize.keys())
+    betArea = random.choice(betAreas)
+    return betArea
+
 def navigateSettings(driver, where):
     waitClickable(driver, 'MULTI', 'SETTING')
     waitElement(driver, 'MULTI SETTINGS', 'MAIN')
@@ -195,53 +239,38 @@ def navigateSettings(driver, where):
     waitElement(driver, 'MULTI HISTORY', 'MAIN')
 
 # SPREADSHEET REPORT STATUSES
-def multiReportSheet(report, game, *args):
+def multiReportSheet(report, game, test_status):
     if report:
         cell = locator("CELL", f"{game}")
-        for index, (name, values) in enumerate(args):
-            if values:
+        for index, (names, values) in enumerate(test_status.items()):
+            if values and names:
+                space = "." * (39-len(names))
                 status = "PASSED"
-                if 'FAILED' in values: status = Fore.RED+"FAILED"                
+                if 'FAILED' in values: status = "FAILED"                
+                if game != 'BACCARAT' and game != 'DT': 
+                    if names == 'Card Result' or names == 'Flipped Cards' or names == 'Bet Within Bet Pool': continue
+                if names == 'Bet On Super Six' and game != 'BACCARAT': continue
                 update_spreadsheet(status, f"D{(cell + index)}")
-                print(f'{index} {name}: {status}')
-                values.clear()
-    else: print("Report disabled")
-
-def sideReportSheet(report, game, failedTables, *args):
-    assert_statuses = [
-        ("Bet Placed", args[0]),
-        ("Payout Assertion", args[1]),
-        ("Empty Betting Area Assertion", args[2])
-    ]
-    if report:
-        cell = locator("CELL", f"{game}")
-        for index, (assert_type, assert_list) in enumerate(assert_statuses):
-            status = "PASSED"
-            if assert_list:
-                if "FAILED" in assert_list:
-                    status = "FAILED"
-                    # update_spreadsheet(failedTables[index], f"J{(cell + index)}")
-                print(f"{assert_type}: ", assert_list)
-                update_spreadsheet(status, f"I{(cell + index)}")
+                printText('body',f'{names}:{space} {status}')
     else: print("Report disabled")
 
 # ASSERTION
-def assertion(driver,assertionTitle, actual, expected, op, testStatus, failedTables, gameTable):
+def assertion(driver, assertionTitle, actual, expected, op, testStatus, failedTables, gameTable, scenario):
     space = " " * 5
-    space2 = " " * (20 - (7+len(str(actual))))
-    space3 = " " * (23 - (10+len(str(expected))))
+    space2 = " " * (80 - (10 + len(str(scenario))))
+    space3 = " " * (30 - (10+len(str(actual))))
     if op is not None:
         condition = ''
         if op is operator.eq: condition = 'EQUAL'
         if op is operator.ne: condition = 'NOT EQUAL'
     try:
         assert op(actual, expected)
-        printTexts('body', f'{assertionTitle}:', f'PASSED {space}{actual} should be {condition} to {expected}')
+        printTexts('body', f'{assertionTitle}:', f'PASSED {space}{scenario}')
         testStatus.append("PASSED")
     except AssertionError:
         testStatus.append("FAILED")
         if failedTables is not None: failedTables.append(gameTable)
-        printTexts('failed', f'{assertionTitle}:', f'PASSED {space}{actual} should be {condition} to {expected}')
+        printTexts('failed', f'{assertionTitle}:', f'FAILED {space}{scenario}{space2}Actual: {actual}{space3}Expected: {expected}')
     
     create_files(f'screenshots/assertion')
     driver.save_screenshot(f'screenshots/assertion/[{gameTable}][{assertionTitle}].png')
