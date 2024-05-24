@@ -114,16 +114,6 @@ def duplicate_sheet(service, spreadsheet_id, sheet_id, new_title):
 
     return new_title, new_sheet_id
 
-def update_scenarios(game, test_scenario):
-    cell = locator("CELL", f"{game}")
-    print(f'{Fore.GREEN}Updated game scenario: {game}')
-    for index, (name, values) in enumerate(test_scenario.items()):
-        if values and name:
-            if game != 'BACCARAT' and game != 'DT':
-                if name == 'Card Result' or name == 'Flipped Cards' or name == 'Bet Within Bet Pool': continue
-            if name == 'Bet On Super Six' and game != 'BACCARAT': continue
-            update_spreadsheet(values, f"C{(cell + index)}")
-
 def update_spreadsheet(value, rng):
     new_title = date.today().isoformat()
     # If modifying these scopes, delete the file token.json.

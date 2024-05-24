@@ -119,6 +119,11 @@ MULTI TABLE:
   SHOE ROUND: 'span.pl-1'
   BET MASK: 'div.bet-mask'
   TIE: 'div.tie'
+  SUPER SIX: 'div.fast-bet-area.super6'
+
+SUPER SIX:
+  MAIN: 'div.fast-bet-area.super6>div'
+  BET AREA: 'div.bet .grid-list-xs .flex'
 
 MULTI BUTTON:
   CONFIRM: "div.bet-btns.Confirm"
@@ -189,8 +194,8 @@ BET LIMIT ID:
 CELL:
   BACCARAT: 4
   DT: 24
-  SICBO: 42
-  SEDIE: 58
+  SICBO: 43
+  SEDIE: 59
 
 BACCARAT:
   # - M1 

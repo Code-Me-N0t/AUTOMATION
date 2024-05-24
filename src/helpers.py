@@ -255,7 +255,7 @@ def multiReportSheet(report, game, test_status):
     else: print("Report disabled")
 
 # ASSERTION
-def assertion(driver, assertionTitle, actual, expected, op, testStatus, failedTables, gameTable, scenario):
+def assertion(driver, assertionTitle, actual, expected, op, testStatus, gameTable, scenario):
     space = " " * 5
     space2 = " " * (80 - (10 + len(str(scenario))))
     space3 = " " * (30 - (10+len(str(actual))))
@@ -269,7 +269,6 @@ def assertion(driver, assertionTitle, actual, expected, op, testStatus, failedTa
         testStatus.append("PASSED")
     except AssertionError:
         testStatus.append("FAILED")
-        if failedTables is not None: failedTables.append(gameTable)
         printTexts('failed', f'{assertionTitle}:', f'FAILED {space}{scenario}{space2}Actual: {actual}{space3}Expected: {expected}')
     
     create_files(f'screenshots/assertion')

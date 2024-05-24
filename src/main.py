@@ -10,10 +10,23 @@ data = {
 
 test_status = {key: [] for key in scenarios.keys()}
 
-multiTables = [[] for _ in range(len(test_status))]
+# multiTables = [[] for _ in range(len(test_status))]
+
+def update_scenarios(games):
+    if games == 'all': games = ['BACCARAT', 'DT', 'SICBO', 'SEDIE']
+
+    for game in games:
+        cell = locator("CELL", f"{game}")
+        print(f'{Fore.GREEN}Updated game scenario: {game}')
+
+        for index, (name, values) in enumerate(scenarios.items()):
+            if values and name:
+                if game not in ['BACCARAT', 'DT'] and name in ['Card Result', 'Flipped Cards', 'Bet Within Bet Pool']: continue
+                if name == 'Bet On Super Six' and game != 'BACCARAT': continue
+                
+                update_spreadsheet(values, f"C{(cell + index)}")
 
 def PlayMulti(driver, game, test, report=None, index=None):
-    # update_scenarios(game, scenarios)
     navigateTab(driver, "MULTI")
     gameTable = locator(game)
     actions = ActionChains(driver)
@@ -27,11 +40,8 @@ def PlayMulti(driver, game, test, report=None, index=None):
         for i in range(len(elements)):
             name = elements[i]
             tableNum = locator("MULTI TABLE","MAIN")+str(i+1)+")"
-
             while name.text == '': continue
-
             if gameTable[selectedGame] not in name.text:
-                # print("Table is not",gameTable[selectedGame])
                 waitModClickable(driver, "MULTI", "TABLE SWITCH", table=tableNum)
                 select = findElements(driver, "MULTI", "MINI TABLECARD")
                 for x in range(len(select)):
@@ -77,8 +87,7 @@ def PlayMulti(driver, game, test, report=None, index=None):
     printText('body', '\n************************** report summary **************************')
 
     # report
-    if report is not None: 
-        multiReportSheet(report, game, test_status)
+    if report is not None: multiReportSheet(report, game, test_status)
 
     waitClickable(driver, "NAV", "FEATURED")
     waitElement(driver, "LOBBY", "MAIN")
@@ -97,97 +106,44 @@ def betLimit(driver, game, index, gametable, tablenum, betarea):
     expected_min = locator('BET LIMIT ID', str(index), 'MIN')
     expected_max = locator('BET LIMIT ID', str(index), 'MAX')
 
-    assertion(driver, 'Correct Bet Limit Assertion', actual_min, expected_min, operator.eq, test_status['Correct Bet Limit'], multiTables[14], gametable, scenarios['Correct Bet Limit'])
-    assertion(driver, 'Correct Bet Limit Assertion', actual_max, expected_max, operator.eq, test_status['Correct Bet Limit'], multiTables[14], gametable, scenarios['Correct Bet Limit'])
+    assertion(driver, 'Correct Bet Limit Assertion', actual_min, expected_min, operator.eq, test_status['Correct Bet Limit'], gametable, scenarios['Correct Bet Limit'])
+    assertion(driver, 'Correct Bet Limit Assertion', actual_max, expected_max, operator.eq, test_status['Correct Bet Limit'], gametable, scenarios['Correct Bet Limit'])
     
     findElement(driver, 'PLAYER', 'CLOSE', click=True)
 
     # assert can bet with lowest and highest bet
-    WithinBetLimit(driver, f'Bet within bet limit [MIN: {actual_min}]', game, gametable, tablenum, betarea, actual_min)
-    WithinBetLimit(driver, f'Bet within bet limit [MAX: {actual_max}]', game, gametable, tablenum, betarea, actual_max)
+    WithinBetLimit(driver, f'Bet within bet limit [MIN: {actual_min}]', game, gametable, tablenum, betarea, actual_min, test_status, scenarios)
+    WithinBetLimit(driver, f'Bet within bet limit [MAX: {actual_max}]', game, gametable, tablenum, betarea, actual_max, test_status, scenarios)
 
     # place below && over betlimit
-    BelowAboveBetlimit(driver, 'Below Minimum Limit', game, gametable, tablenum, betarea, actual_min)
-    BelowAboveBetlimit(driver, 'Over Maximum Limit!', game, gametable, tablenum, betarea, actual_max)
+    BelowAboveBetlimit(driver, 'Below Minimum Limit', game, gametable, tablenum, betarea, actual_min, test_status, scenarios)
+    BelowAboveBetlimit(driver, 'Over Maximum Limit!', game, gametable, tablenum, betarea, actual_max, test_status, scenarios)
 
     # place below betlimit but within betpool
-    if game == 'BACCARAT' or game == 'DT': WithinBetPool(driver, gametable, tablenum, actual_min)
+    if game == 'BACCARAT' or game == 'DT': WithinBetPool(driver, gametable, tablenum, actual_min, test_status, scenarios)
     else: printText('body', f'Bet Within Bet Pool is not available in {game}')
 
-def WithinBetPool(driver, gametable, tablenum, amount):
-    waitModElement(driver, "SIDEBET", "RESULT", table=tablenum)
-    waitModElementInvis(driver, "SIDEBET", "RESULT", table=tablenum)
-    amount-=1
-    EditChips(driver, chipValue=amount)
-    BettingTimer(driver, tableNum=tablenum)
-
-    waitModClickable(driver, 'MULTI TABLE', 'TIE', table=tablenum)
-    waitModClickable(driver, 'MULTI BUTTON', 'CONFIRM', table=tablenum)
-
-    for _ in range(100):
-        validate = findModElement(driver, 'MULTI', 'VALIDATION', table=tablenum)
-        validate = validate.text
-        if validate != "": break
-        sleep(.5)
-        
-    assert 'Bet Successful!' == validate, 'Bet Successful did not display'
-
-    bet = findModElement(driver, 'MULTI TABLE', 'TIE', table=tablenum)
-    getText = bet.text.split('\n')
-    valuePlaced = int(getText[-1])
-
-    assertion(driver, 'Bet Within Bet Pool', valuePlaced, amount, operator.eq, test_status['Bet Within Bet Pool'], multiTables[15], gametable, scenarios['Bet Within Bet Pool'])
-
-def BelowAboveBetlimit(driver, title, game, gametable, tablenum, betarea, amount):
-    waitModElement(driver, "SIDEBET", "RESULT", table=tablenum)
-    waitModElementInvis(driver, "SIDEBET", "RESULT", table=tablenum)
-
-    if 'Below' in title: amount-=1
-    else: amount+=1
-
-    EditChips(driver, chipValue=amount)
-    BettingTimer(driver, tableNum=tablenum)
-
-    while True:
-        waitModClickable(driver, 'MULTI BETTINGAREA', f'{game}', f'{betarea}', table=tablenum)
-        message = findModElement(driver, 'MULTI', 'VALIDATION', click=False, table=tablenum)
-        if title in message.text: break
-        waitModClickable(driver, 'MULTI BUTTON', 'CONFIRM', table=tablenum)
-    assertion(driver, title, message.text, title, operator.eq, test_status['Bet Below/Above Bet Limit'], multiTables[17], gametable, scenarios['Bet Below/Above Bet Limit'])
-
-def WithinBetLimit(driver, title, game, gametable, tablenum, betarea, amount):
-    waitModElement(driver, "SIDEBET", "RESULT", table=tablenum)
-    waitModElementInvis(driver, "SIDEBET", "RESULT", table=tablenum)
-    EditChips(driver, chipValue=amount)
-    BettingTimer(driver, tableNum=tablenum)
-    waitModClickable(driver, 'MULTI BETTINGAREA', f'{game}', f'{betarea}', table=tablenum)
-    findModElement(driver, 'MULTI BUTTON', 'CONFIRM', click=True, table=tablenum)
-    waitModText(driver, 'MULTI', 'VALIDATION', text='Bet Successful!', table=tablenum, time=10)
-    placed_bet = findModElement(driver, 'MULTI BETTINGAREA', f'{game}', f'{betarea}', table=tablenum)
-    bet_amount = float(placed_bet.text.split('\n')[-1].replace(',',''))
-
-    assertion(driver, title, amount, bet_amount, operator.eq, test_status['Bet Within Bet Limit'], multiTables[15], gametable, scenarios['Bet Within Bet Limit'])
-
-def singleBet(driver, game, gameTable, tableNum, chip, balance, betArea):
+def singleBet(driver, game, gametable, tablenum, chip, balance, betArea):
     displayToast(driver, 'SINGLE BET')
     printText('title', 'TEST: SINGLE BET')
     EditChips(driver, chipValue=chip)
     oldBalance = round(float(balance.text.replace(',','')), 2)
 
-    TableSwitch(driver, tableNum, gameTable, test_status, multiTables[0], scenarios)
-    CancelBet(driver, game, gameTable, chip, tableNum, betArea, test_status, multiTables[1], scenarios)
-    UnconfirmedBet(driver, game, gameTable, tableNum, chip, betArea, test_status, multiTables[2], scenarios)
-    BetSuccessful(driver, game, gameTable, tableNum, betArea, test_status, multiTables[3], scenarios)
-    BalanceDeduction(driver, gameTable, oldBalance, chip, test_status, multiTables[4], scenarios)
-    betPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tableNum,)
-    PlaceBet(driver, betPlaced, 'Single Bet Assertion', gameTable, str(chip), test_status['Single Bet'], multiTables[5], scenarios['Single Bet'])
-    NoMoreBets(driver, gameTable, tableNum, test_status, multiTables[7], scenarios)
-    ClosedBetTimer(driver, game, gameTable, tableNum, betArea, test_status, multiTables[8], scenarios)
-    if game == 'BACCARAT' or game == 'DT': b, r = GameResult(driver, game, gameTable, tableNum)
-    Payout(driver, game, gameTable, tableNum, balance, oldBalance, betArea, test_status, multiTables[9], chip, scenarios)
-    EmptyBetarea(driver, gameTable, chip, test_status, multiTables[12], betPlaced, scenarios)
-    if game == 'BACCARAT' or game == 'DT': BetRecord(driver, game, gameTable, b, r, tableNum)  
-
+    TableSwitch(driver, tablenum, gametable, test_status,scenarios)
+    CancelBet(driver, game, gametable, chip, tablenum, betArea, test_status,scenarios)
+    UnconfirmedBet(driver, game, gametable, tablenum, chip, betArea, test_status,scenarios)
+    BetSuccessful(driver, game, gametable, tablenum, betArea, test_status,scenarios)
+    BalanceDeduction(driver, gametable, oldBalance, chip, test_status,scenarios)
+    betPlaced = findModElement(driver, "MULTI BETTINGAREA", game, betArea, table=tablenum,)
+    PlaceBet(driver, betPlaced, 'Single Bet Assertion', gametable, str(chip), test_status['Single Bet'],scenarios['Single Bet'])
+    NoMoreBets(driver, gametable, tablenum, test_status,scenarios)
+    ClosedBetTimer(driver, game, gametable, tablenum, betArea, test_status,scenarios)
+    if game == 'BACCARAT' or game == 'DT': b, r = GameResult(driver, game, gametable, tablenum)
+    Payout(driver, game, gametable, tablenum, balance, oldBalance, betArea, test_status,chip, scenarios)
+    EmptyBetarea(driver, gametable, chip, test_status, betPlaced, scenarios)
+    if game == 'BACCARAT' or game == 'DT': BetRecord(driver, game, gametable, b, r, tablenum)
+    if game == 'BACCARAT': superSix(driver, gametable, tablenum, test_status, scenarios)
+        
 def multipleBet(driver, game, gameTable, tableNum, chip, balance, betArea):
     displayToast(driver, 'MULTIPLE BET')
     print('\n')
@@ -202,15 +158,15 @@ def multipleBet(driver, game, gameTable, tableNum, chip, balance, betArea):
     for bet in betarea: bet.click()
     findModElement(driver, 'MULTI BUTTON', 'CONFIRM', click=True, table=tableNum)
     validate = waitModText(driver, 'MULTI', 'VALIDATION', text='Bet Successful!', table=tableNum, time=10)
-    assertion(driver,'Bet Successful Assertion', validate, True, operator.eq, test_status['Bet Successful'], multiTables[3], gameTable, scenarios['Bet Successful'])
+    assertion(driver,'Bet Successful Assertion', validate, True, operator.eq, test_status['Bet Successful'],gameTable, scenarios['Bet Successful'])
             
     for bets in range(len(betarea)): betamount = chip * (bets+1)
 
-    BalanceDeduction(driver, gameTable, oldBalance, betamount, test_status, multiTables[4], scenarios)
-    for bet in betarea: PlaceBet(driver, bet, 'Multiple Bet Assertion', gameTable, str(chip), test_status['Multiple Bet'], multiTables[6], scenarios['Multiple Bet'])
-    NoMoreBets(driver, gameTable, tableNum, test_status, multiTables[7], scenarios)
-    ClosedBetTimer(driver, game, gameTable, tableNum, betArea, test_status, multiTables[8], scenarios)
-    Payout(driver, game, gameTable, tableNum, balance, oldBalance, betArea, test_status, multiTables[9], betamount, scenarios)
+    BalanceDeduction(driver, gameTable, oldBalance, betamount, test_status,scenarios)
+    for bet in betarea: PlaceBet(driver, bet, 'Multiple Bet Assertion', gameTable, str(chip), test_status['Multiple Bet'],scenarios['Multiple Bet'])
+    NoMoreBets(driver, gameTable, tableNum, test_status,scenarios)
+    ClosedBetTimer(driver, game, gameTable, tableNum, betArea, test_status,scenarios)
+    Payout(driver, game, gameTable, tableNum, balance, oldBalance, betArea, test_status,betamount, scenarios)
 
 def BetRecord(driver, game, gameTable, b, r, tablenum):
     shoe = getShoe(driver, tablenum)
@@ -223,12 +179,11 @@ def BetRecord(driver, game, gameTable, b, r, tablenum):
     result = findElements(driver, 'MULTI HISTORY', 'RESULTS')
     for x in range(len(result)):
         betNum = locator("MULTI HISTORY","RESULTS")+str(locator('MULTI HISTORY', 'CON'))+str(x+1)+")"
-        print(f'Result: {result[x].text}')
+        # print(f'Result: {result[x].text}')
         if shoe in result[x].text:
             # print(f'Shoe: {shoe}')
             
             waitModClickable(driver, 'MULTI HISTORY', 'BET CODE', table=betNum)
-            # sleep(10)
             cards = findElements(driver, 'MULTI HISTORY', 'CARD RESULT')
             for x in range(len(cards)):
                 attrib = cards[x].get_attribute('class')
@@ -255,8 +210,8 @@ def BetRecord(driver, game, gameTable, b, r, tablenum):
                 index += 1
             break
 
-    assertion(driver, f'Bet History Assertion [{betarea[0]}]', b, blue_points, operator.eq, test_status['Record History'], multiTables[15], gameTable, scenarios['Record History'])
-    assertion(driver, f'Bet History Assertion [{betarea[1]}]', r, red_points, operator.eq, test_status['Record History'], multiTables[15], gameTable, scenarios['Record History'])
+    assertion(driver, f'Bet History Assertion [{betarea[0]}]', b, blue_points, operator.eq, test_status['Record History'], gameTable, scenarios['Record History'])
+    assertion(driver, f'Bet History Assertion [{betarea[1]}]', r, red_points, operator.eq, test_status['Record History'], gameTable, scenarios['Record History'])
 
     waitClickable(driver, 'MULTI HISTORY', 'CLOSE')
 
@@ -293,12 +248,12 @@ def GameResult(driver, game, gametable, tableNum):
             red_points += list_value if index > 3 else 0
             if index != 3 and index != 6:
                 while list_name == 'e': continue
-                assertion(driver, f'Flip Cards Assertion', f'{list_name}', 'e', operator.ne, test_status['Flipped Cards'], multiTables[16], gametable, scenarios['Flipped Cards'])
+                assertion(driver, f'Flip Cards Assertion', f'{list_name}', 'e', operator.ne, test_status['Flipped Cards'], gametable, scenarios['Flipped Cards'])
 
         if game == 'DT':
             blue_points += list_value if index == 1 else 0
             red_points += list_value if index == 2 else 0
-            assertion(driver, 'Flip Cards Assertion', f'{list_name}', 'e', operator.ne, test_status['Flipped Cards'], multiTables[16], gametable, scenarios['Flipped Cards'])
+            assertion(driver, 'Flip Cards Assertion', f'{list_name}', 'e', operator.ne, test_status['Flipped Cards'], gametable, scenarios['Flipped Cards'])
         index += 1
         cards = findModElements(driver, 'MULTI TABLE', 'RESULT TITLE', table=tableNum)
 
@@ -309,7 +264,7 @@ def GameResult(driver, game, gametable, tableNum):
     actual_bpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 1', table=tableNum).text[-2:].replace(' ', ''))
     actual_rpoints = int(findModElement(driver, 'MULTI TABLE', 'CARD POINTS 2', table=tableNum).text[-2:].replace(' ', ''))
 
-    assertion(driver, f'Card Result Assertion [{betarea[0]}]', actual_bpoints, blue_points, operator.eq, test_status["Card Result"], multiTables[15], gametable, scenarios["Card Result"])
-    assertion(driver, f'Card Result Assertion [{betarea[1]}]', actual_rpoints, red_points, operator.eq, test_status["Card Result"], multiTables[15], gametable, scenarios["Card Result"])
+    assertion(driver, f'Card Result Assertion [{betarea[0]}]', actual_bpoints, blue_points, operator.eq, test_status["Card Result"], gametable, scenarios["Card Result"])
+    assertion(driver, f'Card Result Assertion [{betarea[1]}]', actual_rpoints, red_points, operator.eq, test_status["Card Result"], gametable, scenarios["Card Result"])
 
     return actual_bpoints, actual_rpoints
