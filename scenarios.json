@@ -13,7 +13,7 @@
     "Correct Bet Limit" :           "Bet limit should be correct upon changing the bet limit code",
     "Bet Within Bet Limit" :        "Should be able to place bet with the lowest and highest amount within the bet limit",
     "Bet Below/Above Bet Limit" :   "Bets above and below bet limit and below bet pool should be unsuccessful",
-    "All In" :                      "Should be able to place ALL IN bets",
+    "All In Bet" :                  "Should be able to place ALL IN bets",
     "Bet Within Bet Pool" :         "Bets within bet pool should be successful",
     "Card Result" :                 "Digital card points and the total card result should be the same",
     "Flipped Cards" :               "Cards should be flipped",

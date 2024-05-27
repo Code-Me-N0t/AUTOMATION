@@ -94,6 +94,7 @@ PLAYER:
   AVATAR: 'div.user-avatar'
   BET LIMIT: 'div.member-container:nth-child(1)>div.label-data'
   CLOSE: 'div.close-wrap'
+  BALANCE: 'div.user-data > span'
 
 MULTI SETTINGS:
   MAIN: 'div#game-setting'
@@ -120,6 +121,7 @@ MULTI TABLE:
   BET MASK: 'div.bet-mask'
   TIE: 'div.tie'
   SUPER SIX: 'div.fast-bet-area.super6'
+  BET PLACED: '.fast-bet-area > div > div:nth-child(3)'
 
 SUPER SIX:
   MAIN: 'div.fast-bet-area.super6>div'

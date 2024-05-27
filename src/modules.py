@@ -88,7 +88,7 @@ def displayToast(driver, message):
     }}, 3000);
     """
     driver.execute_script(script)
-    
+
 def duplicate_sheet(service, spreadsheet_id, sheet_id, new_title):
     # Duplicate the sheet
     new_sheet = service.spreadsheets().sheets().copyTo(

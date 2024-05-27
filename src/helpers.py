@@ -259,10 +259,6 @@ def assertion(driver, assertionTitle, actual, expected, op, testStatus, gameTabl
     space = " " * 5
     space2 = " " * (80 - (10 + len(str(scenario))))
     space3 = " " * (30 - (10+len(str(actual))))
-    if op is not None:
-        condition = ''
-        if op is operator.eq: condition = 'EQUAL'
-        if op is operator.ne: condition = 'NOT EQUAL'
     try:
         assert op(actual, expected)
         printTexts('body', f'{assertionTitle}:', f'PASSED {space}{scenario}')

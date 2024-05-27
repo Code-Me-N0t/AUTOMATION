@@ -26,7 +26,7 @@ def update_scenarios(games):
                 
                 update_spreadsheet(values, f"C{(cell + index)}")
 
-def PlayMulti(driver, game, test, report=None, index=None):
+def PlayMulti(driver, game, test, report=None, index=None, balance=None):
     navigateTab(driver, "MULTI")
     gameTable = locator(game)
     actions = ActionChains(driver)
@@ -77,7 +77,7 @@ def PlayMulti(driver, game, test, report=None, index=None):
             elif test == 'multiplebet':
                 multipleBet(driver, game, gameTable[selectedGame], tableNum, chip, balance, betArea)
             elif test == 'allinbet':
-                multipleBet(driver, game, gameTable[selectedGame], tableNum, chip, balance, betArea)
+                allInBet(driver, game, gameTable[selectedGame], tableNum, chip, balance, )
             else: print(Fore.RED+'Invalid test parameters') 
 
             # end of code
@@ -268,3 +268,69 @@ def GameResult(driver, game, gametable, tableNum):
     assertion(driver, f'Card Result Assertion [{betarea[1]}]', actual_rpoints, red_points, operator.eq, test_status["Card Result"], gametable, scenarios["Card Result"])
 
     return actual_bpoints, actual_rpoints
+
+def allInBet(driver, game, gametable, tablenum, chip, balance):
+    displayToast(driver, 'ALL IN BET')
+    printText('title', 'TEST: ALL IN BET')
+    EditChips(driver, chipValue=chip)
+
+    # scenario 1: validate 'Insufficient Bet' displayed
+    validation_message = getInsufficientText(driver, game, tablenum)
+    
+    # scenario 2: all in then cancel, validate betarea is empty
+    has_chip = False
+    waitModClickable(driver, 'MULTI BUTTON', 'CANCEL', table=tablenum)
+
+    sleep(2)
+
+    bet_placed = findModElements(driver, 'MULTI TABLE', 'BET PLACED', table=tablenum)
+    for bet_area in bet_placed:
+        if 'hidden-chip' not in bet_area.get_attribute('class'): has_chip = True
+
+    # scenario 3: all in then do not confirm, validate next round betting area is empty
+    not_empty = False
+    _ = getInsufficientText(driver, game, tablenum)
+
+    waitModElement(driver, 'MULTI TABLE', 'RESULT TITLE', table=tablenum)
+    waitModElementInvis(driver, 'MULTI TABLE', 'RESULT TITLE', table=tablenum)
+
+    bet_placed = findModElements(driver, 'MULTI TABLE', 'BET PLACED', table=tablenum)
+    for bet_area in bet_placed:
+        if 'hidden-chip' not in bet_area.get_attribute('class'): not_empty = True
+
+    # scenario 4: all in bet then click confirm, validate bet successful displayed
+    _ = getInsufficientText(driver, game, tablenum)
+    waitModClickable(driver, 'MULTI BUTTON', 'CONFIRM', table=tablenum)
+
+    for _ in range(100):
+        validate = findModElement(driver, 'MULTI', 'VALIDATION', table=tablenum)
+        validate_bet = validate.text
+        if validate_bet == "Bet Successful!": break
+        sleep(.5)
+
+    # scenario 5: validate balance remaining should be zero
+    waitModElement(driver, 'MULTI TABLE', 'RESULT TITLE', table=tablenum)
+    remaining_balance = round(float(balance.text.replace(',','')), 2)
+
+    # assertion: assert all scenarios passed
+    assertion(driver, 'All In Bet', 
+              [validation_message, has_chip, not_empty, validate_bet, remaining_balance], 
+              ['Insufficient Balance', False, False, 'Bet Successful!', 0], 
+              operator.eq, 
+              test_status['All In Bet'], 
+              gametable, 
+              scenarios['All In Bet'])
+
+
+def getInsufficientText(driver, game, tablenum):
+    repeat = True
+    for index in range(100):
+        betarea = findModElements(driver, 'MULTIPLE BETTINGAREA', game, table=tablenum)
+        for bet in betarea: 
+            bet.click()
+            message = findModElement(driver, 'MULTI', 'VALIDATION', table=tablenum)
+            validation_message = message.text
+            if message.text == 'Insufficient Balance': 
+                repeat = False
+                break
+        if repeat != True or index == 99: return validation_message
