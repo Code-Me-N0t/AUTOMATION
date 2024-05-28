@@ -1,5 +1,5 @@
 # gen imports
-import requests, random, pytest, yaml, re, os, os.path, operator, base64, warnings, cv2, shutil, json, pytesseract
+import datetime, requests, random, pytest, yaml, re, os, os.path, operator, base64, warnings, cv2, shutil, json, pytesseract
 
 # selenium
 from selenium.common.exceptions import ElementClickInterceptedException, TimeoutException, NoSuchElementException, StaleElementReferenceException
@@ -21,7 +21,7 @@ from google.oauth2 import service_account
 
 # misc
 from fake_useragent import UserAgent
-from datetime import date, datetime
+from datetime import date
 from colorama import Fore, init
 from time import sleep
 from io import BytesIO

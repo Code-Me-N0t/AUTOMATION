@@ -1,6 +1,7 @@
 from src.modules import*
 from src.helpers import*
 from src.assertions import*
+from src.updatebalance import*
 
 data = {
     "username": env("username"),
@@ -27,21 +28,22 @@ def update_scenarios(games):
                 
                 update_spreadsheet(values, f"C{(cell + index)}")
 
-def PlayMulti(driver, game, test, report=None, index=None, bal_driver=None):
+def PlayMulti(driver, game, test, report=None, index=None, new_balance=1000000):
     navigateTab(driver, "MULTI")
     gameTable = locator(game)
     actions = ActionChains(driver)
 
-    # try:
     for selectedGame in range(len(gameTable)):
+        update_balance(driver, new_balance)
         printText('title', f"\nFinding: {gameTable[selectedGame]}")
-
+        
         game_found = False
         elements = findElements(driver, "MULTI", "MULTI TABLE")
         for i in range(len(elements)):
             name = elements[i]
-            tableNum = locator("MULTI TABLE","MAIN")+str(i+1)+")"
-            while name.text == '': continue
+            tableNum = locator("MULTI TABLE", "MAIN") + str(i + 1) + ")"
+            while name.text == '':
+                continue
             if gameTable[selectedGame] not in name.text:
                 waitModClickable(driver, "MULTI", "TABLE SWITCH", table=tableNum)
                 select = findElements(driver, "MULTI", "MINI TABLECARD")
@@ -51,25 +53,21 @@ def PlayMulti(driver, game, test, report=None, index=None, bal_driver=None):
                         select[x].click()
                         game_found = True
                         break
-                    else: continue
+                    else:
+                        continue
                 elements = findElements(driver, "MULTI", "MULTI TABLE")
                 name = elements[i]
                 if gameTable[selectedGame] not in name.text and game_found == False:
                     waitClickable(driver, "MULTI", "CLOSE SIDETABLE")
-                if game_found: break
+                if game_found:
+                    break
             else:
                 game_found = True
                 break
 
-        if game_found: #PLACE BET
+        if game_found:  # PLACE BET
             chip = int(data['chip value'])
             balance = findElement(driver, "MULTI", "USER BALANCE")
-            
-            # Fetching updated balance from bal_driver
-            bal_driver.refresh()  # Make sure the bal_driver is updated
-            balance_element = findElement(bal_driver, "MULTI", "USER BALANCE")
-            balance_value = float(balance_element.text.replace(',', ''))
-            print(f'Balance: {balance_value}')
 
             printText('title', f'Table {gameTable[selectedGame]} found')
             betArea = randomizeBetarea(game)
@@ -80,15 +78,17 @@ def PlayMulti(driver, game, test, report=None, index=None, bal_driver=None):
             if test == 'betlimit' and index is not None:
                 betLimit(driver, game, index, gameTable[selectedGame], tableNum, betArea)
             elif test == 'singlebet':
-                singleBet(driver, game, gameTable[selectedGame], tableNum, chip, balance_value, betArea)
+                singleBet(driver, game, gameTable[selectedGame], tableNum, chip, balance, betArea)
             elif test == 'multiplebet':
-                multipleBet(driver, game, gameTable[selectedGame], tableNum, chip, balance_value, betArea)
+                multipleBet(driver, game, gameTable[selectedGame], tableNum, chip, balance, betArea)
             elif test == 'allinbet':
-                allInBet(driver, game, gameTable[selectedGame], tableNum, chip, balance_value)
-            else: print(Fore.RED+'Invalid test parameters') 
+                allInBet(driver, game, gameTable[selectedGame], tableNum, chip, balance)
+            else:
+                print(Fore.RED + 'Invalid test parameters')
 
             # end of code
-        if not game_found: printText('failed', f'Table {gameTable[selectedGame]} not found')
+        if not game_found:
+            printText('failed', f'Table {gameTable[selectedGame]} not found')
 
         elements = findElement(driver, "MULTI", "MULTI TABLE")
     printText('body', '\n************************** report summary **************************')
@@ -98,13 +98,6 @@ def PlayMulti(driver, game, test, report=None, index=None, bal_driver=None):
 
     waitClickable(driver, "NAV", "FEATURED")
     waitElement(driver, "LOBBY", "MAIN")
-
-
-
-    # except Exception as e:
-    #     print(f'[ERROR]: {str(e)}')
-    #     driver.save_screenshot(f"screenshots/{gameTable[selectedGame]}_{date.today()}_{datetime.now().second}.png")
-
 
 def betLimit(driver, game, index, gametable, tablenum, betarea):
     findElement(driver, 'PLAYER', 'AVATAR', click=True)
@@ -138,7 +131,7 @@ def singleBet(driver, game, gametable, tablenum, chip, balance, betArea):
     printText('title', 'TEST: SINGLE BET')
     EditChips(driver, chipValue=chip)
     oldBalance = round(float(balance.text.replace(',','')), 2)
-
+    
     TableSwitch(driver, tablenum, gametable, test_status,scenarios)
     CancelBet(driver, game, gametable, chip, tablenum, betArea, test_status,scenarios)
     UnconfirmedBet(driver, game, gametable, tablenum, chip, betArea, test_status,scenarios)
@@ -288,16 +281,18 @@ def allInBet(driver, game, gametable, tablenum, chip, balance):
     message = getInsufficientText(driver, game, tablenum)
     while message == '': continue
     validation_message = message
-    print(f'Validation Message: {validation_message}')
+    # print(f'Validation Message: {validation_message}')
     
     # scenario 2: all in then cancel, validate betarea is empty
     has_chip = False
     waitModClickable(driver, 'MULTI BUTTON', 'CANCEL', table=tablenum)
-    sleep(2)
+    waitModElement(driver, "MULTI TABLE", "TABLE RESULT", table=tablenum)
 
     bet_placed = findModElements(driver, 'MULTI TABLE', 'BET PLACED', table=tablenum)
     for bet_area in bet_placed:
         if 'hidden-chip' not in bet_area.get_attribute('class'): has_chip = True
+    
+    waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tablenum)
 
     # scenario 3: all in then do not confirm, validate next round betting area is empty
     not_empty = False
@@ -332,12 +327,15 @@ def allInBet(driver, game, gametable, tablenum, chip, balance):
               test_status['All In Bet'], 
               gametable, 
               scenarios['All In Bet'])
+    
+    waitModElementInvis(driver, "MULTI TABLE", "TABLE RESULT", table=tablenum)
 
 
 def getInsufficientText(driver, game, tablenum):
     repeat = True
     for index in range(100):
         betarea = findModElements(driver, 'MULTIPLE BETTINGAREA', game, table=tablenum)
+        waitBetMask(driver, )
         for bet in betarea: 
             bet.click()
             message = findModElement(driver, 'MULTI', 'VALIDATION', table=tablenum)
