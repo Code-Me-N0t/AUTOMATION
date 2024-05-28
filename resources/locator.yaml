@@ -210,7 +210,7 @@ BACCARAT:
   # - RNG001
   # - RNG002
   # - RNG003
-  # - RNG005
+  - RNG005
   # - RNG006
   # - RNG007
   # - RNG012
@@ -222,7 +222,7 @@ BACCARAT:
 
 DT:
   - P7
-  # - C9
+  - C9
   # - C10
   # - C11
   # - RNG008

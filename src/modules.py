@@ -64,6 +64,10 @@ with open('scenarios.json') as json_file:
     json_data = json_file.read()
     scenarios = json.loads(json_data)
 
+with open('creds.json') as json_file:
+    json_data = json_file.read()
+    creds = json.loads(json_data)
+
 def displayToast(driver, message):
     script = f"""
     var toast = document.createElement('div');

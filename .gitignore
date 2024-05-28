@@ -8,3 +8,4 @@ decoded_images/
 src/__pychache__
 src/altMain.py
 src/altGameapp.py
+creds.json

@@ -2,7 +2,7 @@ from src.modules import *
 from src.gameapp import *
 
 def update_balance():
-    url = get_token(balance=1750.35)
+    url = get_token(84, balance=1750.35)
     option = Options()
     option.add_argument("--window-size=450,950")
     option.add_argument("--window-position=1430,0")
