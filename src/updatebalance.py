@@ -1,16 +1,9 @@
 from src.modules import *
+from src.gameapp import *
 
-host = creds['host']
 
 def update_balance(driver, balance):
-    header = {
-        creds['op_name']: creds['op_value'],
-        creds['t_name']: creds['t_value'],
-    }
-
-    response = requests.get(f'{host}token', headers=header)
-    token = response.json()['data']['token']
-    header[creds['token']] = token
+    _ = get_token()
 
     key_params = {'username': creds['username']}
     response = requests.get(host + creds['balance'], headers=header, json=key_params)
@@ -51,7 +44,7 @@ def update_balance(driver, balance):
         }
         response = requests.post(host + creds['balance'], headers=header, json=key_params)
         updated_balance = response.json()['data']['balance']
-    print(f'{Fore.GREEN}Balance: {updated_balance}')
+    print(f'\n{Fore.GREEN}Balance: {updated_balance}')
     driver.refresh()
 
     return current_balance

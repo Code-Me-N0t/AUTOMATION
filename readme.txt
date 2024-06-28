@@ -9,6 +9,12 @@ test.py
 • Error handling is implemented using try-except blocks to catch exceptions and print error messages.
 • Finally, the script ensures that the WebDriver is properly closed after test execution.
 
+Terminal Commands:
+"pytest"    : Runs the script in normal conditions
+"-v"        : Increases the verbosity of the output
+"-s"        : Show inputs 
+"-m"        : Markers (for excluding tests) e.g: pytest -s -m "not (update_scenario or multiple_bet or betlimit or allin)"
+
 main.py
 
 • This file contains functions that define various test scenarios.

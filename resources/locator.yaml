@@ -1,4 +1,5 @@
 PRE LOADING: "div#pre-loading"
+ERROR HANDLING: "divlogout-text"
 
 NAV:
   BACCARAT: "div.baccarat"
@@ -44,37 +45,6 @@ INGAME:
   BALANCE: "div.balance"
   PARTICIPANT BALANCE: "div.player-balance"
 
-# SIDEBET LOCATORS BELOW
-SIDEBET:
-  MAIN: "div#sidebar div.container"
-  LOBBY: "div.v-tabs__div:nth-child(3)"
-  TABLES: "div.mini-table-card"
-  TABLE: "div.mini-table-card:nth-child("
-  BET: "button.button:nth-child(2)"
-  TIMER: "div.table-time"
-  BETAREA: "div:nth-child(5) div.align-content-start"
-  CONFIRM: "div.bet-action.offset-item0 > div"
-  CLOSE: "div#sidebar > div.close"
-  RESULT: 'div.mini-game-result'
-
-SIDE BETTINGAREA:
-  SEDIE:
-    ODD: "div.bet-table-top:nth-child(1)"
-    EVEN: "div.bet-table-top:nth-child(2)"
-    SMALL: "div.bet-table-top:nth-child(3)"
-    BIG: "div.bet-table-top:nth-child(4)" 
-  BACCARAT:
-    PLAYER: "div.bet-table-bottom:nth-child(4)"
-    BANKER: "div.bet-table-bottom:nth-child(5)"
-  DT:
-    DRAGON: "div.bet-table-bottom:nth-child(3)"
-    TIGER: "div.bet-table-bottom:nth-child(4)"
-  SICBO:
-    ODD: "div.bet-table-top:nth-child(1)"
-    EVEN: "div.bet-table-top:nth-child(2)"
-    SMALL: "div.bet-table-top:nth-child(3)"
-    BIG: "div.bet-table-top:nth-child(4)"
-
 # MULTI PLAY TAB LOCATORS BELOW
 MULTI:
   MAIN: "div#multi-table"
@@ -88,6 +58,23 @@ MULTI:
   TOAST: "div#bet-msg-toast"
   CHIP VALUE: "div.chip-value"
   SETTING: 'div.setting'
+  WINNING MASK: 'div.winner-mask'
+
+MULTI TABLE:
+  MAIN: "div.table-card-bet:nth-child("
+  TABLE TIME: "div.table-time span"
+  TABLE RESULT: "div.mini-game-result"
+  TABLE NAME: "span span:nth-child(1)"
+  TABLE DETAILS: 'span.table-switch-text > .pl-1'
+  RESULT TEXT: "div.result-title"
+  RESULT TITLE: "div.result-title>div.mini-card"
+  CARD POINTS 1: "div.mini-game-result > div:nth-child(1) > div:nth-child(1)"
+  CARD POINTS 2: "div.mini-game-result > div:nth-child(2) > div:nth-child(1)"
+  SHOE ROUND: 'span.pl-1'
+  BET MASK: 'div.bet-mask'
+  TIE: 'div.tie'
+  SUPER SIX: 'div.fast-bet-area.super6'
+  BET PLACED: '.fast-bet-area > div > div:nth-child(3)'
 
 PLAYER:
   MAIN: 'div.profile-slot'
@@ -107,21 +94,6 @@ MULTI HISTORY:
   BET CODE: 'td.bet-code'
   CARD RESULT: 'div.table-card-history'
   CLOSE: 'div.close'
-
-MULTI TABLE:
-  MAIN: "div.table-card-bet:nth-child("
-  TABLE TIME: "div.table-time span"
-  TABLE RESULT: "div.mini-game-result"
-  TABLE NAME: "span span:nth-child(1)"
-  RESULT TEXT: "div.result-title"
-  RESULT TITLE: "div.result-title>div.mini-card"
-  CARD POINTS 1: "div.mini-game-result > div:nth-child(1) > div:nth-child(1)"
-  CARD POINTS 2: "div.mini-game-result > div:nth-child(2) > div:nth-child(1)"
-  SHOE ROUND: 'span.pl-1'
-  BET MASK: 'div.bet-mask'
-  TIE: 'div.tie'
-  SUPER SIX: 'div.fast-bet-area.super6'
-  BET PLACED: '.fast-bet-area > div > div:nth-child(3)'
 
 SUPER SIX:
   MAIN: 'div.fast-bet-area.super6>div'
@@ -155,6 +127,9 @@ MULTIPLE BETTINGAREA:
   BACCARAT: "div.fast-bet-area"
   DT: "div.fast-bet-area"
   SICBO: "div.fast-bet-area"
+
+PLAYER CARDS: 'div.result-title:nth-child(1) div.v-image__image'
+BANKER CARDS: 'div.result-title:nth-child(2) div.v-image__image'
 
 PAYOUT:
   SEDIE:
@@ -200,39 +175,39 @@ CELL:
   SEDIE: 59
 
 BACCARAT:
-  # - M1 
-  # - C2
-  # - M2 
-  # - M3
-  # - M5
-  # - M6
-  # - M7
-  # - RNG001
-  # - RNG002
-  # - RNG003
+  - M1 
+  - C2
+  - M2 
+  - M3
+  - M5
+  - M6
+  - M7
+  - RNG001
+  - RNG002
+  - RNG003
   - RNG005
-  # - RNG006
-  # - RNG007
-  # - RNG012
-  # - RNG013
+  - RNG006
+  - RNG007
+  - RNG012
+  - RNG013
   - RNG015
-  # - RNG016
-  # - RNG017
-  # - RNG018
+  - RNG016
+  - RNG017
+  - RNG018
 
 DT:
   - P7
   - C9
-  # - C10
-  # - C11
-  # - RNG008
-  # - RNG009
-  # - RNG010
-  # - RNG011
-  # - RNG019
-  # - RNG020
-  # - RNG021
-  # - RNG022
+  - C10
+  - C11
+  - RNG008
+  - RNG009
+  - RNG010
+  - RNG011
+  - RNG019
+  - RNG020
+  - RNG021
+  - RNG022
 
 SEDIE:
   - B01

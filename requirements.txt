@@ -1,6 +1,6 @@
 pyyaml
 pytest
-selenium==4.11.2
+selenium
 pytesseract
 requests
 google_auth_oauthlib
