@@ -1,12 +1,21 @@
 from src.modules import *
 from src.main import Multi
 
-def test_multi(driver):
+@pytest.mark.usefixtures("driver", "game_options")
+def test_multi(driver, game_options):
     multi = Multi(driver)
-    multi.main('DT')
-    multi.main('BACCARAT')
-    multi.main('SICBO')
-    multi.main('SEDIE')
+    
+    if game_options['DT']:
+        multi.main('DT')
+    
+    if game_options['BACCARAT']:
+        multi.main('BACCARAT')
+    
+    if game_options['SICBO']:
+        multi.main('SICBO')
+    
+    if game_options['SEDIE']:
+        multi.main('SEDIE')
 
 # @pytest.mark.update_scenario
 # def test_UPDATESCENARIO(): update_scenarios('all')

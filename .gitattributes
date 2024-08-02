@@ -1,0 +1,6 @@
+* text=auto*.py text
+*.js text
+*.yaml text
+*.ini text
+*.bat text eol=crlf
+*.sh text eol=lf

@@ -2,9 +2,9 @@ PRE LOADING: "div#pre-loading"
 ERROR HANDLING: "divlogout-text"
 
 NAV:
-  BACCARAT: "div.baccarat"
+  BACCARAT: "div.cards"
   THREE CARDS: "div.cards"
-  DRAGON TIGER: "div.cards"
+  DT: "div.cards"
   NIUNIU: "div.cards"
   SEDIE: "div.others"
   ROULETTE: "div.others"
@@ -38,12 +38,65 @@ INGAME:
   CONFIRM: "div.Confirm"
   TABLE_NAME: "span.point.pr-2"
   TIMER: "span.timer"
-  BET: "div.bet-table.t"
-  BET2: "div.bet-table.b"
+  BET: "div.bet-table:first-child"
   RESULT: "div.result-board.result-cards"
   SIDEBET: "div#btn-tips"
-  BALANCE: "div.balance"
+  BALANCE: "div.balance span"
   PARTICIPANT BALANCE: "div.player-balance"
+
+
+# SIDEBET TAB LOCATORS BELOW
+SIDEBET:
+  MAIN: '#sidebar > .container'
+  CLOSE: '#sidebar > .close'
+  GOODTIPS: 'div.v-tabs__div:nth-child(2)'
+  LOBBY: 'div.v-tabs__div:nth-child(3)'
+  TABLES: 'div.mini-table-card'
+
+SIDE TABLES:
+  MAIN: 'div.mini-table-card:nth-child('
+  TABLE NUMBER: 'div.table-id > span'
+  TABLE NAME: 'div.point > span'
+  ENTER BUTTON: 'button:nth-child(1)'
+  BET BUTTON: 'button:nth-child(2)'
+  BETAREA: 'div.table-'
+  TIMER: 'div.table-time'
+  TABLE RESULT: 'div.mini-game-result'
+  VALIDATION: 'div.sidebar-msg'
+  WINNING MASK: 'div.winner-mask'
+
+SIDE BUTTON:
+  CONFIRM: 'div.bet-action:first-child'
+  CANCEL: 'div.bet-action:last-child'
+
+SIDE BETAREA:
+  BACCARAT:
+    PLAYER: 'div.bet-table-bottom:nth-child(4)'
+    BANKER: 'div.bet-table-bottom:nth-child(5)'
+    TIE: 'div.bet-table-top:nth-child(2)'
+    PPAIR: 'div.bet-table-top:nth-child(1)'
+    BPAIR: 'div.bet-table-top:nth-child(3)'
+  SEDIE:
+    ODD: 'div.bet-table-top:nth-child(1)'
+    EVEN: 'div.bet-table-top:nth-child(2)'
+    SMALL: 'div.bet-table-top:nth-child(3)'
+    BIG: 'div.bet-table-top:nth-child(4)'
+  THREE CARDS:
+    LUCKY: 'div.bet-table-top'
+    DRAGON1: 'div.bet-table-bottom:nth-child(3)'
+    DRAGON2: 'div.bet-table-bottom:nth-child(3)'
+  DT:
+    DRAGON: 'div.bet-table-bottom:nth-child(3)'
+    TIGER: 'div.bet-table-bottom:nth-child(4)'
+    TIE: 'div.bet-table-top'
+
+SIDE MULTIPLE BETAREA:
+  DT: "div.bet-title"
+  BACCARAT: "div.bet-title"
+  SEDIE: "div.bet-title"
+  THREE CARDS: "div.bet-title"
+  SICBO: "div.bet-title"
+
 
 # MULTI PLAY TAB LOCATORS BELOW
 MULTI:
@@ -52,9 +105,8 @@ MULTI:
   TABLE SWITCH: "div.table-switch"
   MINI TABLECARD: "div.bet-mini-table-card"
   VALIDATION: "div.sidebar-msg"
-  SHUFFLING_TEXT: "div.shuffling-text"
   CLOSE SIDETABLE: "div.close"
-  USER BALANCE: "div.user-data>span"
+  BALANCE: "div.user-data > span"
   TOAST: "div#bet-msg-toast"
   CHIP VALUE: "div.chip-value"
   SETTING: 'div.setting'
@@ -72,9 +124,11 @@ MULTI TABLE:
   CARD POINTS 2: "div.mini-game-result > div:nth-child(2) > div:nth-child(1)"
   SHOE ROUND: 'span.pl-1'
   BET MASK: 'div.bet-mask'
+  SHUFFLING: "div.shuffling-text"
   TIE: 'div.tie'
   SUPER SIX: 'div.fast-bet-area.super6'
   BET PLACED: '.fast-bet-area > div > div:nth-child(3)'
+  USER BET: 'div.user-bet-chip'
 
 PLAYER:
   MAIN: 'div.profile-slot'
@@ -99,12 +153,17 @@ SUPER SIX:
   MAIN: 'div.fast-bet-area.super6>div'
   BET AREA: 'div.bet .grid-list-xs .flex'
 
-MULTI BUTTON:
+INGAME BUTTON:
+  CONFIRM: "div#bet-buttons .Confirm"
+  CANCEL: "div#bet-buttons .Cancel"
+  REBET: "div#bet-buttons .Rebet"
+
+BUTTON:
   CONFIRM: "div.bet-btns.Confirm"
   CANCEL: "div.bet-btns.Cancel"
   SUPER SIX: "div.super6-switch"
 
-MULTI BETTINGAREA:
+BETAREA:
   SEDIE:
     SMALL: "div.fast-bet-area.small"
     BIG: "div.fast-bet-area.big"
@@ -122,7 +181,7 @@ MULTI BETTINGAREA:
     ODD: "div.fast-bet-area.odd"
     EVEN: "div.fast-bet-area.even"
 
-MULTIPLE BETTINGAREA:
+BETAREAS:
   SEDIE: "div.fast-bet-area"
   BACCARAT: "div.fast-bet-area"
   DT: "div.fast-bet-area"
@@ -175,25 +234,25 @@ CELL:
   SEDIE: 59
 
 BACCARAT:
-  - M1 
-  - C2
-  - M2 
-  - M3
+  # - M1
+  # - C2
+  # - M2
+  # - M3
   - M5
-  - M6
-  - M7
-  - RNG001
+  # - M6
+  # - M7
+  # - RNG001
   - RNG002
-  - RNG003
-  - RNG005
-  - RNG006
-  - RNG007
+  # - RNG003
+  # - RNG005
+  # - RNG006
+  # - RNG007
   - RNG012
-  - RNG013
-  - RNG015
-  - RNG016
-  - RNG017
-  - RNG018
+  # - RNG013
+  # - RNG015
+  # - RNG016
+  # - RNG017
+  # - RNG018
 
 DT:
   - P7

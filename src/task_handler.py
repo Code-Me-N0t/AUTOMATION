@@ -1,20 +1,81 @@
 from src.modules import *
 from src.element_handler import Handler
-from src.element_handler import click_highlighter as clicker
+
+'''
+    This class, `Tasks`, is designed to handle a variety of tasks related to navigating and interacting with the user interface
+    of a web application using the `Handler` class for element interactions. 
+
+    Methods:
+    - __init__: Initializes the Tasks instance with a Handler instance.
+    - navigateLobby: Navigates to a specified section within the lobby.
+    - navigateSettings: Navigates to a specified section within the settings.
+    - printText: Prints colored text to the console.
+    - printTexts: Prints colored captioned text with a dynamic spacer to the console.
+    - waitBetMask: Waits for a betting mask element to become visible and then invisible.
+    - bettingTimer: Waits for the betting timer to finish and handles subsequent actions.
+    - formatNumber: Formats a number into a more readable string representation.
+    - editChips: Edits the chip value in the game interface.
+    - decodeText: Decodes base64 encoded text from a game element and saves it as an image.
+    - randomBet: Randomly selects a betting area for the game.
+    - spacer: Generates a spacer string of a specified length.
+    - generateReport: Generates a report based on the test status and updates a spreadsheet accordingly.
+'''
 
 class Tasks:
     def __init__(self, handler):
         self.handler = handler
-        self.time = 600
-        self.index = None
+        self.modules = Modules(handler)
+        self.time = 60
 
     @handle_exceptions
     def navigateLobby(self, where):
         self.handler.waitElement('PRE LOADING')
         self.handler.waitElement('LOBBY', 'MAIN')
         self.handler.waitElement('LOBBY', 'MENU')
-        self.handler.waitClickable('NAV', where)
-        self.handler.waitElement('MULTI', 'MAIN')
+        self.handler.waitClickable('NAV', where, time=10)
+        if where == 'MULTI':
+            self.handler.waitElement('MULTI', 'MAIN')
+        else: pass
+    
+    @handle_exceptions
+    def navigateSidebet(self, where):
+        self.handler.clickElement('INGAME', 'SIDEBET')
+        self.handler.waitElement('SIDEBET', 'MAIN')
+        self.handler.clickElement('SIDEBET', where)
+        self.handler.waitElement('SIDEBET', 'MAIN')
+
+    @handle_exceptions
+    def betIngame(self):
+        print('inner line 1')
+        self.handler.waitElement('INGAME', 'MAIN')
+        
+        print('inner line 2')
+        self.handler.waitElement('INGAME', 'RESULT')
+        self.handler.waitElementInvis('INGAME', 'RESULT')
+        
+        print('inner line 3')
+        self.handler.waitClickable('INGAME', 'BET')
+        self.handler.clickElement('INGAME BUTTON', 'CONFIRM')
+
+        print('inner line 4')
+        self.handler.waitElement('INGAME', 'RESULT')
+        print('inner line 4.5')
+        self.handler.waitElementInvis('INGAME', 'RESULT')
+        print('inner line 5')
+
+    @handle_exceptions
+    def sideBettingTimer(self, index):
+        while True:
+            start_time = time.time()
+            timer = self.handler.getText('SIDE TABLES', 'TIMER', index=index)
+            
+            if int(timer) >= 10: break
+
+            end_time = time.time() - start_time
+
+            if end_time >= 60:
+                table_num = self.handler.getText('SIDE TABLES', 'TABLE NUMBER', index=index)
+                raise TimeoutException(f'{Fore.RED}{table_num} stays zero for {end_time} seconds')
 
     @handle_exceptions
     def navigateSettings(self, where):
@@ -22,6 +83,11 @@ class Tasks:
         self.handler.waitElement('MULTI SETTINGS', 'MAIN')
         self.handler.waitElement('MULTI SETTINGS', where)
         self.handler.waitElement('MULTI HISTORY', 'MAIN')
+
+    @handle_exceptions
+    def nextRound(self, index):
+        self.handler.waitElement('MULTI TABLE', 'TABLE RESULT', index=index)
+        self.handler.waitElementInvis('MULTI TABLE', 'TABLE RESULT', index=index)
     
     @handle_exceptions
     def printText(self, value, text):
@@ -43,25 +109,44 @@ class Tasks:
             'green': Fore.GREEN,
         }
         color = color_map.get(value)
-        space = "." * (40-len(caption))
+        space = '.' * (40-len(caption))
         color = color_map.get(value)
         print(f'{caption}{color}{space} {text}')
 
+    # @handle_exceptions
+    def waitTask(self, where, time, index=None):
+        try:
+            element = self.handler.getElement('MULTI TABLE', where, index=index)
+            if element:
+                self.handler.waitElementInvis('MULTI TABLE', where, time=(time*10) or self.time, index=index)
+            else: return False
+        except NoSuchElementException:
+            return False
+    
+    def splitUpperCase(self, text):
+       return re.sub(r'([a-z])([A-Z])', r'\1 \2', text) 
+            
     @handle_exceptions
-    def waitBetMask(self, time=10, index=None):
-        try: 
-            self.handler.waitElement('MULTI TABLE', 'BET MASK', time=time, index=index)
-            self.handler.waitElementInvis('MULTI TABLE', 'BET MASK', time=time, index=index)
-        except NoSuchElementException: return False
+    def waitNextRound(self, index):
+        is_true = False
+        while True:
+            timer = self.handler.getText('SIDE TABLES', 'TIMER', index=index)
+            if int(timer) == 0: 
+                while True:
+                    timer = self.handler.getText('SIDE TABLES', 'TIMER', index=index)
+                    if  int(timer) > 0:
+                        is_true = True
+                        break
+            if is_true:
+                break
 
-    @handle_exceptions
-    def bettingTimer(self, time=10, index=None):
-        self.waitBetMask()
-        time = self.handler.getText('MULTI TABLE', 'TABLE TIME', index=self.index)
-        while time == '': continue
-        if int(time) < self.time:
-            self.handler.waitElement('MULTI TABLE', 'TABLE RESULT', time=time, index=index)
-            self.handler.waitElementInvis('MULTI TABLE', 'TABLE RESULT', time=time, index=index)
+    # @handle_exceptions
+    def bettingTimer(self, time, index=None):
+        timer = self.handler.getText('MULTI TABLE', 'TABLE TIME', index=index)
+        
+        if int(timer) < time:
+            self.handler.waitElement('MULTI TABLE', 'TABLE RESULT', time=time or self.time, index=index)
+            self.handler.waitElementInvis('MULTI TABLE', 'TABLE RESULT', time=time or self.time, index=index)
 
     @handle_exceptions
     def formatNumber(self, num):
@@ -85,42 +170,45 @@ class Tasks:
         repeat = True
 
         while repeat:
-            chips = self.handler.getElements("MULTI", "CHIP VALUE")
+            # check chip selection if desired chip amount is displayed
+            chips = self.handler.getElements('MULTI', 'CHIP VALUE')
             for chip in chips:
                 actions.move_to_element(chip).perform()
                 if chip.text == formatted_num:
-                    self.handler.clicker(chip)
+                    self.modules.click(chip)
                     repeat = False
-                    return
-
-            self.handler.clickElement("INGAME", "EDIT_CHIP")
-            chip_select = self.handler.getElements("INGAME", "CHIP SELECTION")
-
-            for index, inner_chip in enumerate(chip_select):
-                selected_chips = self.handler.getElements("INGAME", "SELECT CHIP")
-
-                if formatted_num == inner_chip.text:
-                    if len(selected_chips) >= 10:
-                        chip_wrap = self.handler.getElements("INGAME", "CHIP WRAP")
-                        for unselect_chip in chip_wrap:
-                            if 'chip-selection' in unselect_chip.get_attribute('class'):
-                                self.handler.clicker(unselect_chip)
-                                break
-                    self.handler.clicker(inner_chip)
                     break
-                elif index == len(chip_select) - 1 and formatted_num != inner_chip.text:
-                    self.handler.clicker("INGAME", "EDIT_BTN")
-                    self.handler.clicker("INGAME", "CLEAR_CHIP")
-                    self.handler.inputValue("INGAME", "ENTER_VALUE", value=chip_value)
-                    self.handler.clicker("INGAME", "SAVE_BTN")
-                    sleep(2)
-                    validate = self.handler.findElement("INGAME", "CHIP VALIDATION")
-                    assert validate.text == 'Successfully change the chip amount', f'FAILED: {validate.text}'
 
-            self.handler.clicker("INGAME", "CLOSE_BTN")
+            # check if inner chips if desired chip amount displayed
+            if repeat:
+                self.handler.clickElement('INGAME', 'EDIT_CHIP')
+                chip_select = self.handler.getElements('INGAME', 'CHIP SELECTION')
+
+                for index, inner_chip in enumerate(chip_select):
+                    selected_chips = self.handler.getElements('INGAME', 'SELECT CHIP')
+
+                    if formatted_num == inner_chip.text:
+                        if len(selected_chips) >= 10:
+                            chip_wrap = self.handler.getElements('INGAME', 'CHIP WRAP')
+                            for unselect_chip in chip_wrap:
+                                if 'chip-selection' in unselect_chip.get_attribute('class'):
+                                    self.handler.modules.click(unselect_chip)
+                                    break
+                        self.handler.modules.click(inner_chip)
+                        break
+                    elif index == len(chip_select) - 1 and formatted_num != inner_chip.text:
+                        self.handler.clickElement('INGAME', 'EDIT_BTN')
+                        self.handler.clickElement('INGAME', 'CLEAR_CHIP')
+                        self.handler.inputValue('INGAME', 'ENTER_VALUE', value=chip_value)
+                        self.handler.waitClickable('INGAME', 'SAVE_BTN')
+                        sleep(2)
+                        validate = self.handler.findElement('INGAME', 'CHIP VALIDATION')
+                        assert validate.text == 'Successfully change the chip amount', f'FAILED: {validate.text}'
+                self.handler.clickElement('INGAME', 'CLOSE_BTN')
+            else: break
 
     @handle_exceptions
-    def decodeText(self, card_index, base64_string, directory, game, index=None):
+    def decodeText(self, card_index, base64_string, directory, game, index):
         dir = f'decoded_images/{game}/{directory}/{index}/'
         card = f'card{card_index}.png'
         create_files(dir)
@@ -145,16 +233,16 @@ class Tasks:
         return card_value
     
     @handle_exceptions
-    def randomBet(self, game):
-        randomize = locator("MULTI BETTINGAREA",f"{game}")
+    def randomBet(self, game, betarea):
+        randomize = locator(f'{betarea}',f'{game}')
         betareas = list(randomize.keys())
         betarea = random.choice(betareas)
         return betarea
     
     @handle_exceptions
     def spacer(self, length=5, element=None):
-        space = "." * (length - len(element)) if element else "." * length
-        return space
+        space = '.' * (length - len(element)) if element else length
+        return Fore.LIGHTBLACK_EX + space
     
     @handle_exceptions
     def generateReport(self, report, game, test_status):
@@ -172,3 +260,14 @@ class Tasks:
                     update_spreadsheet(status, f'D{(cell + index)}')
                     self.printText('red', f'{name}:{spacer} {status}')
         else: self.printText('gray', 'Report disabled')
+
+    @handle_exceptions
+    def assertion(self, expected, actual, operator):
+        try:
+            assert operator(expected, actual)
+            result = 'PASSED'
+        except AssertionError:
+            result = 'FAILED'
+            # print(f'Expected Result: {expected}')
+            # print(f'Actual Result: {actual}')
+        return result

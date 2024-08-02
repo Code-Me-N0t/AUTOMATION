@@ -1,41 +1,6 @@
 from src.task_handler import Tasks
 from src.element_handler import Handler
 from src.modules import *
-
-class Assert:
-    def __init__(self, handler):
-        self.handler = handler
-        self.task = Tasks(self.handler)
-        self.test = test_status
-
-    @handle_exceptions
-    def assertion(self, title, expected_result, actual_result, operator):
-        print('a line 1')
-        spacer = self.task.spacer()
-        print('a line 2')
-
-        try:
-            print('a line 3')
-            assert operator(expected_result, actual_result)
-            status = 'PASSED'
-            info = ''
-        except AssertionError:
-            print('a line 4')
-            status = 'FAILED'
-            info = f' Expected: {expected_result} Actual: {actual_result}'
-        
-        print('a line 5')
-        
-        self.task.printTexts('green' if status == 'PASSED' else 'red', title, f'{status}')
-        print('test status next')
-        test_status.append(status)
-        print('screenshot next')
-        create_files('screenshots/assertion')
-        # self.handler.driver.save_screenshot(f'screenshots/[{self.game}][{title}].png')
-
-        return status
-
-    
         
 
 def TableSwitch(driver, tableNum, gameTable, testcase, scenario):
