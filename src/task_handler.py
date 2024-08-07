@@ -46,22 +46,16 @@ class Tasks:
 
     @handle_exceptions
     def betIngame(self):
-        print('inner line 1')
         self.handler.waitElement('INGAME', 'MAIN')
         
-        print('inner line 2')
         self.handler.waitElement('INGAME', 'RESULT')
         self.handler.waitElementInvis('INGAME', 'RESULT')
         
-        print('inner line 3')
         self.handler.waitClickable('INGAME', 'BET')
         self.handler.clickElement('INGAME BUTTON', 'CONFIRM')
 
-        print('inner line 4')
         self.handler.waitElement('INGAME', 'RESULT')
-        print('inner line 4.5')
         self.handler.waitElementInvis('INGAME', 'RESULT')
-        print('inner line 5')
 
     @handle_exceptions
     def sideBettingTimer(self, index):
