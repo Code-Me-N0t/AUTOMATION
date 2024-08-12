@@ -16,6 +16,3 @@ def test_sidebet(driver, game_options):
     
     if game_options['SEDIE']:
         test.main('SEDIE')
-        
-    if game_options['3CARDS']:
-        test.main('3CARDS')

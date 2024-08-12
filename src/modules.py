@@ -63,8 +63,8 @@ def locator(*keys):
         for key in keys: get_locator = get_locator[key]
         return get_locator
     
-scenarios = load_json('scenarios.json')
-creds = load_json('creds.json')
+scenarios = load_json('resources/scenarios.json')
+creds = load_json('resources/creds.json')
 test_status = {key: [] for key in scenarios.keys()}
 delete_files('screenshots/')
 delete_files('decoded_images/')

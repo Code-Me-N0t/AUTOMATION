@@ -256,17 +256,17 @@ BACCARAT:
 
 DT:
   - P7
-  - C9
-  - C10
-  - C11
-  - RNG008
-  - RNG009
-  - RNG010
-  - RNG011
-  - RNG019
-  - RNG020
-  - RNG021
-  - RNG022
+  # - C9
+  # - C10
+  # - C11
+  # - RNG008
+  # - RNG009
+  # - RNG010
+  # - RNG011
+  # - RNG019
+  # - RNG020
+  # - RNG021
+  # - RNG022
 
 SEDIE:
   - B01

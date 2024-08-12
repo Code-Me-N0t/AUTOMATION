@@ -1,6 +1,7 @@
 from src.modules import *
-from src.gameapp import get_gameurl
-from src.updatebalance import *
+from src.handlers.api_handler import GameAPI
+
+api = GameAPI()
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
@@ -21,7 +22,7 @@ def game_options(request):
 
 @pytest.fixture(scope="session")
 def driver():
-    url = get_gameurl()
+    url = api.get_game_url()
     option = Options()
     option.add_argument("--window-size=450,950")
     option.add_argument("--window-position=900,0")
@@ -40,7 +41,7 @@ def driver():
 @pytest.fixture(scope="session", params=[84, 140]) #, 160, 90
 def drivers(request):
     index = request.param
-    url = get_gameurl(index=index)
+    url = api.get_game_url(index=index)
     option = Options()
     option.add_argument("--window-size=450,950")
     option.add_argument("--window-position=1430,0")

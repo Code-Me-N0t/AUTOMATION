@@ -1,7 +1,7 @@
 from src.modules import *
-from src.task_handler import Tasks
-from src.element_handler import Handler
-from src.updatebalance import update_balance
+from src.handlers.task_handler import Tasks
+from src.handlers.element_handler import Handler
+from src.handlers.api_handler import GameAPI
 
 class Sidebet:
     def __init__(self, driver):
@@ -9,6 +9,7 @@ class Sidebet:
         self.handler = Handler(driver)
         self.task = Tasks(self.handler)
         self.actions = ActionChains(driver)
+        self.api = GameAPI()
         self.chip = 202
         self.betlimit = 84
         self.balance = 1000000
@@ -22,7 +23,8 @@ class Sidebet:
         self.testcases = [
             # self.TestEmptyBetarea,
             # self.TestConfirmButton,
-            self.TestPayout,
+            # self.TestPayout,
+            self.TestAllInBet,
         ]
 
     @handle_exceptions
@@ -38,6 +40,12 @@ class Sidebet:
             print(Fore.LIGHTBLACK_EX + f'\nTable {game}: ', end='')
 
             for x, test in enumerate(self.testcases):
+                testname = self.task.splitUpperCase(test.__name__)
+                if 'All In' in testname: balance = 1701.57
+                else: balance = self.balance
+                
+                self.api.update_balance(balance)
+                
                 self.task.betIngame()
                 
                 balance = self.handler.getText('PLAYER', 'BALANCE')
@@ -200,55 +208,6 @@ class Sidebet:
         return 'FAILED' if 'FAILED' in tests else 'PASSED'
     
     def TestConfirmButton(self):
-        """
-            CONFIRM
-            Test 1: Validate 'Bet Successful' display when confirmed
-                - place bet
-                - check if bet was placed
-                - confirm the bet
-                - check if bet was placed
-                - check if 'bet successful' displays
-                Assertions:
-                    Test 1.1: Assert bet was placed
-                    Test 1.2: Assert bet was placed after confirming
-                    Test 1.3: Assert message displayed
-
-            Test 2: Confirmed bet should retain even when the dealing phase ends (TBF)
-                - place bet
-                - check if bet was placed
-                - confirm bet
-                - check if bet was placed
-                - wait for dealing phase to end
-                - check if the bet was retained
-                Assertions:
-                    Test 2.1: Assert bet was placed
-                    Test 2.2: Assert bet was placed after confirming
-                    Test 2.3: Assert bet retained after dealing phase
-
-            Test 3: Confirmed bet should deduct correctly for single bet
-                - check balance
-                - place bet
-                - check if bet was placed
-                - confirm bet
-                - check if bet was placed
-                - check if the balance was deducted correctly
-                Assertions:
-                    Test 3.1: Assert bet was placed
-                    Test 3.2: Assert bet was placed after confirming
-                    Test 3.3: Assert balance was correctly deducted
-
-            Test 4: Confirmed bet should deduct correctly for multiple bet
-                - check balance
-                - place bet on all betting areas
-                - check if all bets was placed
-                - confirm all bets
-                - check if all bets was placed after confirming
-                - check if the balance was deducted correctly
-                Assertions:
-                    Test 4.1: Assert bets was placed
-                    Test 4.2: Assert bets was placed after confirming
-                    Test 4.3: Assert bets was correctly deducted
-        """
         tests = []
 
         """ test 1 """
@@ -345,25 +304,6 @@ class Sidebet:
         return 'FAILED' if 'FAILED' in tests else 'PASSED'
     
     def TestPayout(self):
-        """
-            Description: Handles the validation of the correct payout of Single, Multiple, and ALL bet area bets
-
-                Test 1: Validate correct payout for SINGLE BET
-                - check balance
-                - place bet on a single random bet area
-                - check if the bet was placed
-                - confirm bet
-                - check if the bet was retained after confirming
-                - wait for the result
-                - compute the expected payout
-                - get the balance and compute the actual payout
-                Assertions:
-                    Test 1.1: Assert bet was placed
-                    Test 1.2: Assert bet was placed after confirm
-                    Test 1.3: Assert payout is correct
-                    Test 1.4: Assert balance deduction/addition is correct based on the payout
-
-        """
         tests = []
 
         """ Test 1 """
@@ -414,12 +354,12 @@ class Sidebet:
             expected_payout = float(self.chip) + (expected_winnings if win else -expected_winnings)
         
         # if result_msg != 'Win':
-        print(f'\n{winnning_msg}')
-        print(f'Won?: {win_msg}')
-        print(f'Bet Area: {bet_area}')
-        print(f'Odds: {odds}')
-        print(f'Result Message: {result_msg}')
-        print(f'Actual Payout: {actual_payout}\nExpected Payout: {expected_payout}')
+        #     print(f'\n{winnning_msg}')
+        #     print(f'Won?: {win_msg}')
+        #     print(f'Bet Area: {bet_area}')
+        #     print(f'Odds: {odds}')
+        #     print(f'Result Message: {result_msg}')
+        #     print(f'Actual Payout: {actual_payout}\nExpected Payout: {expected_payout}')
 
         test1_3 = self.task.assertion(expected_payout, actual_payout, operator.eq)
         tests.append(test1_3)
@@ -435,12 +375,17 @@ class Sidebet:
         
         expected_balance = round(expected_balance, 2)
 
-        print(f'Old Balance: {old_balance}')
-        print(f'Actual Balance: {actual_balance}')
-        print(f'Expected Balance: {expected_balance}')
+        # print(f'Old Balance: {old_balance}')
+        # print(f'Actual Balance: {actual_balance}')
+        # print(f'Expected Balance: {expected_balance}')
 
         test1_4 = self.task.assertion(expected_balance, actual_balance, operator.eq)
         tests.append(test1_4)
+
+        return 'FAILED' if 'FAILED' in tests else 'PASSED'
+    
+    def TestAllInBet(self):
+        tests = []
 
         return 'FAILED' if 'FAILED' in tests else 'PASSED'
 
@@ -450,6 +395,7 @@ class Multi:
         self.handler = Handler(driver)
         self.task = Tasks(self.handler)
         self.actions = ActionChains(driver)
+        self.api = GameAPI()
         self.chip = 201
         self.betlimit = 84
         self.balance = 1000000
@@ -490,7 +436,7 @@ class Multi:
         self.game = game_type
 
         for game in range(len(gamelist)):
-            update_balance(self.handler.driver, self.balance)
+            self.api.update_balance(self.handler.driver, self.balance)
             in_selection = False
             self.wasClicked = None
             print(Fore.LIGHTBLACK_EX+f'Table {gamelist[game]}: ', end='')

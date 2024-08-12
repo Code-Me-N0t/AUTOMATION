@@ -1,10 +1,10 @@
 resources/credentials.json
 resources/token.json
+resources/creds.json
 screenshots/
 venv
 .pytest_cache
 tests/__pychache__
 decoded_images/
 src/__pychache__
-creds.json
 src/assert_handler.py

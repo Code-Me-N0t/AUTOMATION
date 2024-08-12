@@ -1,5 +1,5 @@
 from src.modules import *
-from src.element_handler import Handler
+from src.handlers.element_handler import Handler
 
 '''
     This class, `Tasks`, is designed to handle a variety of tasks related to navigating and interacting with the user interface
