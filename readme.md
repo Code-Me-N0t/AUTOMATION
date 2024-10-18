@@ -1,27 +1,47 @@
-This pytest automation script is designed to test various functionalities of a gaming web application. Below is a brief overview of the script files and their functionalities:
+<h1>iGAMING FUNCTIONAL TESTING AUTOMATION</h1>
+<p>This pytest automation script is designed to test various functionalities of a gaming web application.</p>
+<span>Below is a brief overview of the script files and their functionalities:</span>
 
-test.py
+<h2>TESTS</h2>
+<ul>
+  <li>Conftest: This file handles the webdriver configuration including some test fixtures for test script customization.</li>
+  <li>Test Multi: This file contains all the test scenario for the Multi feature. It covers the core functions scenario. It includes a variety of game options for the available games displayed in Multi</li>
+  <li>Test Sidebet: This file contains all the test scenario for the Sidebet Feature. It covers the core functions scenario. It includes a variety of game options for the available games displayed in Sidebet</li>
+</ul>
 
-• This file contains test functions prefixed with "test_" that are executed by pytest.
-• Test cases are organized using the playMulti(driver, game, test, report=True) function, which performs actions like playing multiple games, placing bets, and validating results.
-• Each test case is associated with a specific game and test type (e.g., "BET LIMIT" or "PLACE BET").
-• The script imports functions from src.modules and src.main modules to execute test scenarios.
-• Error handling is implemented using try-except blocks to catch exceptions and print error messages.
-• Finally, the script ensures that the WebDriver is properly closed after test execution.
+<h2>SRC</h2>
+<ul>
+  <li>Modules: This file contains al the non-driver pre-requisite methods needed to run the script.</li>
+  <li>Multi Main: This files containes the main test logic of the Multi feature. This include as well the test cases created for the mentioned feature.</li>
+  <li>Sidebet Main: This files containes the main test logic of the Sidebet feature. This include as well the test cases created for the mentioned feature.</li>
+</ul>
 
-Terminal Commands:
-"pytest"    : Runs the script in normal conditions
-"-v"        : Increases the verbosity of the output
-"-s"        : Show inputs 
-"-m"        : Markers (for excluding tests) e.g: pytest -s -m "not (update_scenario or multiple_bet or betlimit or allin)"
+<h2>HANDLERS</h2>
+<ul>
+  <li>API Handler: Contains the API methods for multiple functions including generating the token and game URL</li>
+  <li>Element Handler: Contains set of methods to interact with web elements directly. It simplifies common actions such as finding elements, clicking elements, and waiting for conditions that directly involves the element</li>
+  <li>Task Handler: Contains set of methods for handling a variety of tasks specific to the game itself, includes navigating and interacting with the user interface.</li>
+</ul>
 
-main.py
+<h2>RESOURCES</h2>
+<ul>
+  <li>Credentials: Contains credentials for the Google Sheet report.</li>
+  <li>Creds: A json file that contains sensitive game informations such as base url, token name, etc.</li>
+  <li>Locator: A yaml file for storing element selectors for locating web elements.</li>
+  <li>Scenarios: A json file for storing test scenarios.</li>
+  <li>Script: A javascript file that contains javscript methods for specific functions.</li>
+  <li>Token: A json file for enabling google API</li>
+</ul>
 
-• This file contains functions that define various test scenarios.
-• The playMulti(driver, game, test, report=True) function orchestrates the execution of test cases by navigating to different game tables, placing bets, and validating outcomes.
-• Test data and test case details are stored in dictionaries for easy access and reporting.
-• Helper functions from src.modules are used to interact with the web application, locate elements, input values, and validate results.
-• Specific test scenarios like "SUPER SIX" and "BET LIMIT" are implemented with dedicated functions to handle unique behaviors.
-• Reporting of test results is implemented within the playMulti function using a reporting mechanism (reportSheet) to log test outcomes and failures.
+<h2>TERMINAL COMMANDS</h2>
+<p>Below are the commands for running the script</p>
+<ul>
+  <li>"pytest": To recognize the script as a Pytest script. (required)</li>
+  <li>"-s": To display print outputs.</li>
+  <li>"-v": To increase the verbosity of the log outputs.</li>
+  <li>"-m": To run test with specific markers. Markers are available in running Sidebet script ("single"/"multiple")</li>
+  <li>Game Options: Specifies the game to test. Refer to the test files to see the available games listed. You may run the code using (e.g., "--DT")</li>
+</ul>
 
-Note: This readme provides a high-level overview of the pytest automation script. For detailed implementation and usage instructions, refer to the comments within the script files (test.py and main.py) and the corresponding modules (src/modules.py and src/helpers.py).
+<i>Note: To run the script you need to have your creds.json for handling game credentials, as well as credentials.json for generating google sheet report</i>
+<i>Note: This readme provides a high-level overview of the pytest automation script. For detailed implementation and usage instructions, refer to the comments within the script files (test and main) and the corresponding modules (src/modules.py and src/helpers.py).</i>
