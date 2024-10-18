@@ -42,6 +42,6 @@
   <li>"-m": To run test with specific markers. Markers are available in running Sidebet script ("single"/"multiple")</li>
   <li>Game Options: Specifies the game to test. Refer to the test files to see the available games listed. You may run the code using (e.g., "--DT")</li>
 </ul>
-
+<hr>
 <i>Note: To run the script you need to have your creds.json for handling game credentials, as well as credentials.json for generating google sheet report</i><br>
 <i>Note: This readme provides a high-level overview of the pytest automation script. For detailed implementation and usage instructions, refer to the comments within the script files (test and main) and the corresponding modules (src/modules.py and src/helpers.py).</i>
