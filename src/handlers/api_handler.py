@@ -47,6 +47,7 @@ class GameAPI:
         return game_url
 
     def get_current_balance(self):
+        self.get_token()
         key_params = {'username': creds['username']}
         response = requests.get(
             self.host + creds['balance'], 
@@ -56,28 +57,22 @@ class GameAPI:
         current_balance = response.json()['data']['balance']
         return float(current_balance)
 
-    def calculate_adjustment(self, current_balance, balance):
+    def calculate_adjustment(self, current_balance, balance_adjustment):
         skip = False
         action = ''
         adjustment = 0
 
-        if balance == 1000000:
-            if current_balance > balance:
-                adjustment = current_balance
-                skip = True
-            else:
-                adjustment = balance
-                action = 'IN'
-        elif balance < 2000:
-            if balance < 2000 and current_balance > 2000:
-                adjustment = current_balance - balance
-                action = 'OUT'
-            elif current_balance == 0:
-                adjustment = balance
-                action = 'IN'
-            else:
-                adjustment = current_balance
-                skip = True
+        if balance_adjustment >= current_balance:
+            adjustment = balance_adjustment
+            action = 'IN'
+        elif (current_balance - balance_adjustment) > 300:
+            difference = current_balance - balance_adjustment
+            difference = round(difference, 2)
+            adjustment = difference
+            action = 'OUT'
+        else:
+            adjustment = current_balance
+            skip = True
 
         return adjustment, action, skip
 
@@ -105,5 +100,4 @@ class GameAPI:
         else:
             updated_balance = current_balance
 
-        print(f'\n{Fore.LIGHTBLACK_EX}Balance: {updated_balance}')
         return updated_balance

@@ -52,6 +52,7 @@ SIDEBET:
   GOODTIPS: 'div.v-tabs__div:nth-child(2)'
   LOBBY: 'div.v-tabs__div:nth-child(3)'
   TABLES: 'div.mini-table-card'
+  SHUFFLING: 'div.dealing-text'
 
 SIDE TABLES:
   MAIN: 'div.mini-table-card:nth-child('
@@ -89,6 +90,22 @@ SIDE BETAREA:
     DRAGON: 'div.bet-table-bottom:nth-child(3)'
     TIGER: 'div.bet-table-bottom:nth-child(4)'
     TIE: 'div.bet-table-top'
+
+SIDE MAIN BETAREA:
+  BACCARAT:
+    PLAYER: 'div.bet-table-bottom:nth-child(4)'
+    BANKER: 'div.bet-table-bottom:nth-child(5)'
+  SEDIE:
+    ODD: 'div.bet-table-top:nth-child(1)'
+    EVEN: 'div.bet-table-top:nth-child(2)'
+    SMALL: 'div.bet-table-top:nth-child(3)'
+    BIG: 'div.bet-table-top:nth-child(4)'
+  THREE CARDS:
+    DRAGON1: 'div.bet-table-bottom:nth-child(3)'
+    PHOENIX: 'div.bet-table-bottom:nth-child(3)'
+  DT:
+    DRAGON: 'div.bet-table-bottom:nth-child(3)'
+    TIGER: 'div.bet-table-bottom:nth-child(4)'
 
 SIDE MULTIPLE BETAREA:
   DT: "div.bet-title"
@@ -131,11 +148,11 @@ MULTI TABLE:
   USER BET: 'div.user-bet-chip'
 
 PLAYER:
-  MAIN: 'div.profile-slot'
   AVATAR: 'div.user-avatar'
+  MAIN: 'div.profile-slot'
   BET LIMIT: 'div.member-container:nth-child(1)>div.label-data'
-  CLOSE: 'div.close-wrap'
   BALANCE: 'div.user-data > span'
+  CLOSE: 'div.close-wrap'
 
 MULTI SETTINGS:
   MAIN: 'div#game-setting'
@@ -234,39 +251,39 @@ CELL:
   SEDIE: 59
 
 BACCARAT:
-  # - M1
-  # - C2
-  # - M2
-  # - M3
+  - M1
+  - C2
+  - M2
+  - M3
   - M5
-  # - M6
-  # - M7
-  # - RNG001
+  - M6
+  - M7
+  - RNG001
   - RNG002
-  # - RNG003
-  # - RNG005
-  # - RNG006
-  # - RNG007
+  - RNG003
+  - RNG005
+  - RNG006
+  - RNG007
   - RNG012
-  # - RNG013
-  # - RNG015
-  # - RNG016
-  # - RNG017
-  # - RNG018
+  - RNG013
+  - RNG015
+  - RNG016
+  - RNG017
+  - RNG018
 
 DT:
   - P7
-  # - C9
-  # - C10
-  # - C11
-  # - RNG008
-  # - RNG009
-  # - RNG010
-  # - RNG011
-  # - RNG019
-  # - RNG020
-  # - RNG021
-  # - RNG022
+  - C9
+  - C10
+  - C11
+  - RNG008
+  - RNG009
+  - RNG010
+  - RNG011
+  - RNG019
+  - RNG020
+  - RNG021
+  - RNG022
 
 SEDIE:
   - B01

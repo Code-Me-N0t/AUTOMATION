@@ -160,9 +160,9 @@ class Modules:
     def execJS(self, function):
         with open('resources/script.js', 'r') as js:
             getScript = js.read()
-            script = getScript + f'return {function}'
-            run = self.handler.driver.execute_script(script)
-            return run
+        script = getScript + f'return {function}'
+        run = self.handler.driver.execute_script(script)
+        return run
 
     def displayToast(self, type, color, message):
         function_call = f"displayToast('{type}', '{color}', '{message}');"
@@ -187,4 +187,24 @@ class Modules:
         element.click()
         self.execJS(f'highlightClick({x}, {y});')
         return True
+    
+    def sendTG(self, tests):
+        url = creds['tg_host']
+        BOT_TOKEN = creds['tg_token']
+        CHAT_ID = creds['tg_id']
 
+        header = "TEST RESULTS:\n"
+        test_details = "\n".join([f"{test['testname']}: {test['result']}" for test in tests])
+        message = f"{header}\n{test_details}"
+        
+        payload = {
+            'chat_id': CHAT_ID,
+            'text': message
+        }
+
+        response = requests.post(f'{url}bot{BOT_TOKEN}/sendMessage', data=payload)
+
+        if response.status_code == 200:
+            print('Message Sent')
+        else:
+            print(f'Message Not Sent: {response.status_code}, {response.text}')

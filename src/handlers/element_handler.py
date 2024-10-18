@@ -35,7 +35,18 @@ class Handler:
             element = self.driver.find_element(*selector)
             element = element.text
             if element != '': break
-        assert element != '', 'Element is empty'
+        assert element != '' and element is not None, 'Element is empty'
+        return element
+
+    @handle_exceptions
+    def getNonAssertText(self, *keys, index=None):
+        selector = self.getSelector(*keys, index=index)
+        for _ in range(100):
+            element = self.driver.find_element(*selector)
+            element = element.text
+            if element != '': break
+            sleep(1)
+        assert element != '' and element is not None, 'Element is empty'
         return element
 
     @handle_exceptions

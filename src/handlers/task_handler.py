@@ -25,6 +25,7 @@ class Tasks:
     def __init__(self, handler):
         self.handler = handler
         self.modules = Modules(handler)
+        self.actions = ActionChains(handler)
         self.time = 60
 
     @handle_exceptions
@@ -45,11 +46,41 @@ class Tasks:
         self.handler.waitElement('SIDEBET', 'MAIN')
 
     @handle_exceptions
-    def betIngame(self):
+    def navigateCurrentTable(self, game):
+        game_elements = self.handler.getElements('SIDEBET', 'TABLES')
+        for this in game_elements:
+            ActionChains(self.handler.driver).move_to_element(this).perform()
+            if game in this.text:
+                break
+                
+    @handle_exceptions
+    def changeBetAmount(self, bet_amount):
+        self.handler.clickElement('SIDEBET', 'CLOSE')
+        self.betIngame(bet_amount)
+        self.navigateSidebet('LOBBY')
+
+    @handle_exceptions
+    def getPlayerBalance(self):
+        self.handler.waitElement('LOBBY', 'MAIN')
+        self.handler.clickElement('PLAYER', 'AVATAR')
+        self.handler.waitElement('PLAYER', 'MAIN')
+        betlimit = self.handler.getText('PLAYER', 'BET LIMIT')
+        getText = betlimit.split(' ')
+        min = int(getText[0])
+        max = int(getText[-1])
+
+        self.handler.clickElement('PLAYER', 'CLOSE')
+
+        return (min, max)
+
+    @handle_exceptions
+    def betIngame(self, amount):
         self.handler.waitElement('INGAME', 'MAIN')
         
         self.handler.waitElement('INGAME', 'RESULT')
         self.handler.waitElementInvis('INGAME', 'RESULT')
+
+        self.editChips(amount)
         
         self.handler.waitClickable('INGAME', 'BET')
         self.handler.clickElement('INGAME BUTTON', 'CONFIRM')
@@ -82,6 +113,16 @@ class Tasks:
     def nextRound(self, index):
         self.handler.waitElement('MULTI TABLE', 'TABLE RESULT', index=index)
         self.handler.waitElementInvis('MULTI TABLE', 'TABLE RESULT', index=index)
+
+    @handle_exceptions
+    def shuffling(self, index):
+        try:
+            shuffling_text = self.handler.getText('SIDEBET', 'SHUFFLING', index=index)
+            
+            if shuffling_text == 'SHUFFLING...': return True
+            else: return False
+        except:
+            return False
     
     @handle_exceptions
     def printText(self, value, text):
@@ -162,18 +203,22 @@ class Tasks:
         formatted_num = self.formatNumber(chip_value)
         actions = ActionChains(self.handler.driver)
         repeat = True
-
+        
         while repeat:
-            # check chip selection if desired chip amount is displayed
             chips = self.handler.getElements('MULTI', 'CHIP VALUE')
+            while not chips: continue
             for chip in chips:
-                actions.move_to_element(chip).perform()
+                while True:
+                    try:
+                        actions.move_to_element(chip).perform()
+                        break
+                    except MoveTargetOutOfBoundsException:
+                        continue
                 if chip.text == formatted_num:
                     self.modules.click(chip)
                     repeat = False
                     break
-
-            # check if inner chips if desired chip amount displayed
+            
             if repeat:
                 self.handler.clickElement('INGAME', 'EDIT_CHIP')
                 chip_select = self.handler.getElements('INGAME', 'CHIP SELECTION')
@@ -196,8 +241,8 @@ class Tasks:
                         self.handler.inputValue('INGAME', 'ENTER_VALUE', value=chip_value)
                         self.handler.waitClickable('INGAME', 'SAVE_BTN')
                         sleep(2)
-                        validate = self.handler.findElement('INGAME', 'CHIP VALIDATION')
-                        assert validate.text == 'Successfully change the chip amount', f'FAILED: {validate.text}'
+                        validate = self.handler.getText('INGAME', 'CHIP VALIDATION')
+                        assert validate == 'Successfully change the chip amount', f'FAILED: {validate}'
                 self.handler.clickElement('INGAME', 'CLOSE_BTN')
             else: break
 
@@ -237,6 +282,11 @@ class Tasks:
     def spacer(self, length=5, element=None):
         space = '.' * (length - len(element)) if element else length
         return Fore.LIGHTBLACK_EX + space
+    
+    @handle_exceptions
+    def spacerr(self, length=5, element=None):
+        space = '.' * (length - len(element)) if element else length
+        return space
     
     @handle_exceptions
     def generateReport(self, report, game, test_status):
