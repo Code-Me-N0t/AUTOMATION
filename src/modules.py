@@ -23,7 +23,8 @@ from PIL import Image
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", message="Attempting to use a delegate that only supports static-sized tensors with a graph that has dynamic-sized tensors")
 
-logging.basicConfig(level=logging.CRITICAL)
+# logging.basicConfig(level=logging.CRITICAL)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 init(autoreset=True)

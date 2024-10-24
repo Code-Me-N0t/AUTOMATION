@@ -70,7 +70,7 @@ class Sidebet:
 
                         if game in side_tables.text:
                             self.game_found = True
-                            break
+                            
 
                     if self.game_found:
                         if self.task.shuffling(index=self.index): continue

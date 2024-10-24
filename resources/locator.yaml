@@ -19,6 +19,15 @@ LOBBY:
   BALANCE: "div.user-data>span"
   USER MENU: "div#user-menu"
 
+RESULTS:
+  - BANKER WIN
+  - PLAYER WIN
+  - TIE
+
+PLAYER BETAREA: "div.bet-table.p"
+BANKER BETAREA: "div.bet-table.b"
+TIE BETAREA: "div.bet-table.tie"
+
 INGAME:
   MAIN: "div#game-content"
   EXIT: "div#btn-exit"
@@ -34,12 +43,13 @@ INGAME:
   UNSELECT CHIP: 'div.chip-selection:nth-child('
   SELECT CHIP: 'div.chip-selection'
   CHIP VALIDATION: 'div.amount-format span'
-  VALIDATION: "div#bet-msg-toast > div"
+  VALIDATION: "div#bet-msg-toast"
   CONFIRM: "div.Confirm"
   TABLE_NAME: "span.point.pr-2"
   TIMER: "span.timer"
   BET: "div.bet-table:first-child"
   RESULT: "div.result-board.result-cards"
+  RESULT WIN: "div.result-board.result-cards > div.result-win"
   SIDEBET: "div#btn-tips"
   BALANCE: "div.balance span"
   PARTICIPANT BALANCE: "div.player-balance"
