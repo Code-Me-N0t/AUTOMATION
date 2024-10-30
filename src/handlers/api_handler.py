@@ -21,9 +21,9 @@ class GameAPI:
         self.update_header(creds['token'], self.token)
         return self.token
 
-    def fetch_game_key(self, index=184):
+    def fetch_game_key(self, username, index=184):
         key_params = {
-            'username': creds['username'], 
+            'username': username, 
             'betlimit': str(index)
         }
         response = requests.get(
@@ -34,9 +34,9 @@ class GameAPI:
         game_key = response.json()['data']['key']
         return game_key
 
-    def get_game_url(self, index=184):
+    def get_game_url(self, username=creds['username'], index=184):
         self.get_token()
-        game_key = self.fetch_game_key(index)
+        game_key = self.fetch_game_key(username, index)
         query_params = {'key': game_key}
         response = requests.get(
             self.host + creds['site_url'], 

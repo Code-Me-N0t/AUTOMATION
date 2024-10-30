@@ -28,7 +28,7 @@ class Handler:
         assert selector != '', 'Selector is empty'
         return (By.CSS_SELECTOR, selector)
 
-    @handle_exceptions
+    # @handle_exceptions
     def getText(self, *keys, index=None):
         selector = self.getSelector(*keys, index=index)
         for _ in range(100):

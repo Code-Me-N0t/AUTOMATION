@@ -52,6 +52,7 @@ INGAME:
   RESULT WIN: "div.result-board.result-cards > div.result-win"
   SIDEBET: "div#btn-tips"
   BALANCE: "div.balance span"
+  RESULT BOARD: 'div.board-result'
   PARTICIPANT BALANCE: "div.player-balance"
 
 

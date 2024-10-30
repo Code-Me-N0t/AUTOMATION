@@ -239,8 +239,8 @@ class Tasks:
                         self.handler.clickElement('INGAME', 'EDIT_BTN')
                         self.handler.clickElement('INGAME', 'CLEAR_CHIP')
                         self.handler.inputValue('INGAME', 'ENTER_VALUE', value=chip_value)
-                        self.handler.waitClickable('INGAME', 'SAVE_BTN')
-                        sleep(2)
+                        self.handler.clickElement('INGAME', 'SAVE_BTN')
+                        # sleep(2)
                         validate = self.handler.getText('INGAME', 'CHIP VALIDATION')
                         assert validate == 'Successfully change the chip amount', f'FAILED: {validate}'
                 self.handler.clickElement('INGAME', 'CLOSE_BTN')

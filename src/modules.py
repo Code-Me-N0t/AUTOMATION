@@ -1,5 +1,5 @@
 import datetime, requests, random, pytest, yaml, re, os, os.path, operator, base64, warnings, shutil, json, sys, logging, functools, time
-from selenium.common.exceptions import ElementClickInterceptedException, TimeoutException, NoSuchElementException, StaleElementReferenceException, MoveTargetOutOfBoundsException
+from selenium.common.exceptions import ElementClickInterceptedException, TimeoutException, NoSuchElementException, StaleElementReferenceException, MoveTargetOutOfBoundsException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
@@ -24,7 +24,8 @@ with warnings.catch_warnings():
     warnings.filterwarnings("ignore", message="Attempting to use a delegate that only supports static-sized tensors with a graph that has dynamic-sized tensors")
 
 # logging.basicConfig(level=logging.CRITICAL)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format=f'{Fore.LIGHTBLACK_EX}%(asctime)s - %(levelname)s - {Fore.GREEN}%(message)s')
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 init(autoreset=True)
@@ -41,7 +42,7 @@ def handle_exceptions(func):
     def wrapper(*args, **kwargs):
         try: return func(*args, **kwargs)
         except Exception as e:
-            print(f"Exception in {func.__name__}: {type(e).__name__}")
+            logging.info(f'Exception in {func.__name__}: {type(e).__name__}')
             return None
     return wrapper
 

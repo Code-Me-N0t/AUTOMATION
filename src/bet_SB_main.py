@@ -4,7 +4,7 @@ from src.handlers.element_handler import Handler
 from src.handlers.api_handler import GameAPI
 import logging
 
-# Define constants
+# Constants
 BET_BASE_AMOUNT = 40000
 BET_MULTIPLIER = 10000
 
@@ -22,42 +22,53 @@ class speedBaccarat:
     @handle_exceptions
     def main(self, table: str) -> None:
         """Main method to run the baccarat game betting logic."""
-        self.handler.modules.execJS(f'noFullScreen();')
         self.table = table
-
+        
         while True:
+            self.handler.modules.execJS(f'noFullScreen();')
             self.task.navigateLobby(self.game)
-            logging.info(f"Navigating lobby to find table {self.table}")
+            self.log(f"Navigating to table: {self.table}")
             gamelist = self.handler.getElements('LOBBY', 'TABLE')
 
             for game in gamelist:
                 self.actions.move_to_element(game).perform()
 
                 if self.table in game.text:
-                    logging.info(f"Entering table {self.table}")
+                    self.log(f"Entering the table: {self.table}")
                     self.handler.modules.click(game)
                     self.handler.waitElement('INGAME', 'MAIN')
 
                     result = self.collect_results()
 
-                    if len(result) >= 2 and self.is_streak(result):
+                    if self.is_streak(result):
                         if self.perform_betting_logic(result):
-                            logging.info(f"Streak ended. Exiting table {self.table} and re-entering.")
-                            break  # Exit the game and re-enter the table
+                            self.log(f"Streak ended")
+                            # break
 
-                    logging.info(f"Exiting the table {self.table}")
+                    self.log(f"Exiting the table: {self.table}")
                     self.handler.clickElement('INGAME', 'EXIT')
-                    break  # Exit to lobby and loop back to re-enter the table
+                    break
 
     def collect_results(self) -> list:
         """Collect game results and store them in a list."""
         result = []
+        
         for _ in range(4):
-            self.handler.waitElement('INGAME', 'RESULT WIN')
-            message = self.handler.getText('INGAME', 'VALIDATION')
+            message = ''
+            while True:
+                self.handler.waitElement('INGAME', 'RESULT')
+                self.handler.waitText('INGAME', 'VALIDATION', text='No More Bets')
+                self.handler.waitElementInvis('INGAME', 'VALIDATION')
+
+                self.handler.waitElement('INGAME', 'VALIDATION')
+                message = self.handler.getText('INGAME', 'VALIDATION')
+                if message not in ('BANKER WIN!', 'PLAYER WIN!', 'TIE!'):
+                    continue
+                else:
+                    break
             result.append(message)
 
-            logging.info(f"Collected Result: {message}")
+            self.log(f"Collected Result: {message}")
             self.handler.waitElementInvis('INGAME', 'RESULT')
 
         return result
@@ -65,10 +76,10 @@ class speedBaccarat:
     def is_streak(self, result: list) -> bool:
         """Check if all results in the list are the same."""
         if all(x == result[0] for x in result):
-            logging.info(f"Streak detected: {result}")
+            self.log(f"Streak detected: {result}")
             return True
         else:
-            logging.info("No streak detected.")
+            self.log('No streak detected')
             return False
 
     def perform_betting_logic(self, result: list) -> bool:
@@ -84,31 +95,27 @@ class speedBaccarat:
             bet_streak += 1
 
             if did_win:
-                logging.info(f"Bet succeeded. Continuing betting. Bet streak: {bet_streak}")
+                self.log(f"Bet streak: {bet_streak}")
                 continue
             else:
-                logging.info(f"Bet failed. Ending bet streak at {bet_streak}.")
-                return True  # Exit to the lobby
+                self.log(f"Bet streak ended: {bet_streak}")
+                return True
 
     def bet(self, bet_area: str, bet_amount: int) -> bool:
         """Place a bet and check the result."""
         self.handler.waitText('INGAME', 'VALIDATION', text='Please Place Your Bet!')
+        
         self.task.editChips(4000)
-
-        # Place bet on tie if applicable
         self.place_bet('TIE BETAREA')
 
-        # Adjust chip amount and place bet on designated area
         self.task.editChips(bet_amount)
         self.place_bet(f'{bet_area} BETAREA')
 
-        # Confirm bet
         self.handler.clickElement('INGAME', 'CONFIRM')
 
-        # Check the result of the bet
         self.handler.waitElement('INGAME', 'RESULT WIN')
         message = self.handler.getText('INGAME', 'VALIDATION')
-        logging.info(f"Bet Result: {message}")
+        self.log(f"Bet Result: {message}")
 
         return True if bet_area in message else False
 
@@ -120,3 +127,7 @@ class speedBaccarat:
                 break
             except ElementClickInterceptedException:
                 self.handler.waitElementInvis('INGAME', 'RESULT')
+
+    def log(self, log: str) -> None:
+        """ customizes log display """
+        logging.info(f'{Fore.GREEN}{log}{Fore.LIGHTBLACK_EX}')
